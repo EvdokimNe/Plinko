@@ -101,6 +101,17 @@ Defold's `.collection`, `.go`, `.atlas`, `.input_binding` and `game.project` are
 edit them directly, do not ask the developer to click in the editor. `.gui` is text too but
 verbose and easy to corrupt: generate it carefully and say exactly what changed.
 
+## Before writing a service, look for one
+A service-shaped feature — currency, saving, logging, screen management, tweening — probably
+already exists in the Defold ecosystem, written by someone who hit the edge cases first. Search
+the [asset portal](https://defold.com/assets/) and
+[awesome-defold](https://github.com/astrochili/awesome-defold) **before** writing it, not only
+before adding a dependency, and say what was found and why it was or was not used.
+
+Finding one does not mean taking it: a hundred lines of our own with tests can beat a dependency
+whose model we would fight. But that has to be a decision, recorded in the feature's `AGENTS.md`,
+rather than something nobody checked.
+
 ## Dependencies
 `docs/DEPENDENCIES.md` owns the list: what each library is for, who wrote it, and the procedure
 for adding another. Two rules that bite if forgotten — pin exact tags, never `master.zip`, and

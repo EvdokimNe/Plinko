@@ -10,12 +10,13 @@ The authoritative list is `game.project`; this file explains it.
 | [defold-event](https://github.com/Insality/defold-event) | tag `16` | Insality | MIT | Required by Druid for all component callbacks | Not used directly by our code |
 | [Druid](https://github.com/Insality/druid) | `1.3.0` | Insality | MIT | UI components over gui nodes | [notes](lib/druid.md) |
 | [Monarch](https://github.com/britzl/monarch) | `6.0.2` | Björn Ritzl (Defold co-founder) | MIT | Screen stack and transitions | [notes](lib/monarch.md) |
+| [Saver](https://github.com/Insality/defold-saver) | tag `8` | Insality | MIT | Saving and loading game state, works in HTML5 | 5 KB in web builds |
 | [deftest](https://github.com/britzl/deftest) | `2.8.0` | Björn Ritzl | MIT | Unit tests, mocks, coverage | [notes](lib/deftest.md) |
 
 Each library was verified through the official [Defold asset portal](https://defold.com/assets/)
 before being added — the portal's author and repository link is the check against typosquats.
 
-Project folders they contribute: `event/`, `druid/`, `monarch/`, `deftest/` + `luacov/`.
+Project folders they contribute: `event/`, `druid/`, `monarch/`, `saver/`, `deftest/` + `luacov/`.
 
 ## Order matters
 
@@ -29,7 +30,8 @@ Current order, base libraries before their dependents:
 #0  defold-event      Druid needs it
 #1  druid
 #2  monarch
-#3  deftest           test-only, last so it can never shadow runtime code
+#3  defold-saver
+#4  deftest           test-only, last so it can never shadow runtime code
 ```
 
 ## Pinning

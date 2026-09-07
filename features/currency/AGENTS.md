@@ -60,6 +60,23 @@ modules, and every test drives them directly without touching the service.
 - **A part-filled timer at the cap is a free ball.** Without holding the timer at zero while
   full, a player who spends one unit after idling gets an instant refill.
 
+## Alternatives considered
+
+[Insality/defold-token](https://github.com/Insality/defold-token) (MIT) does this job as a
+library: countable values with configurable restoration, `set_restore_config`,
+`get_time_to_restore`, `reset_restore_timer`, plus save/load of its own state. It was found
+after this feature was written — the project rules now require looking first.
+
+Kept ours because it is about a hundred lines of logic with no dependency, shaped exactly to the
+spec, and covered by tests that double as documentation of the refill rules. Token is the better
+choice the moment a second currency needs shops, offers or bundles: it already models what we
+would otherwise grow here by hand.
+
+[indiesoftby/defold-page-visibility](https://github.com/indiesoftby/defold-page-visibility)
+reports when a browser tab is hidden. Not needed yet: the refill timer is driven by `dt` and
+capped, so a tab that returns after a minute credits at most up to the cap and never bursts.
+It becomes relevant if refilling should keep honest time while the tab is in the background.
+
 ## Known debt
 
 - No persistence. Balances reset on restart until the save service exists (task 010).
