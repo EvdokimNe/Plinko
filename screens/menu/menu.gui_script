@@ -1,5 +1,10 @@
+local currency = require("features.currency.currency")
 local druid = require("druid.druid")
 local monarch = require("monarch.monarch")
+
+local function show_balls(self, balance)
+	gui.set_text(self.balls, "Balls: " .. balance)
+end
 
 function init(self)
 	msg.post(".", "acquire_input_focus")
@@ -7,9 +12,20 @@ function init(self)
 	self.druid:new_button("play", function()
 		monarch.show(hash("game"))
 	end)
+
+	self.balls = gui.get_node("balls")
+
+	-- Kept on self so `final` can unsubscribe exactly this closure: the service outlives the
+	-- screen, and a callback left behind would write into destroyed nodes.
+	self.on_balls = function(balance)
+		show_balls(self, balance)
+	end
+	currency.on_change("balls", self.on_balls)
+	show_balls(self, currency.balance("balls"))
 end
 
 function final(self)
+	currency.off_change("balls", self.on_balls)
 	self.druid:final()
 end
 
