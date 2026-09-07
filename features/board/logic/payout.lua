@@ -49,7 +49,6 @@ function M.release(state, id)
 end
 
 --- Releases everything still in flight, in the order it was launched.
--- This is what makes leaving the screen mid-fall lose the animation and never the win.
 ---@param state table
 ---@return table[] drops
 function M.release_all(state)

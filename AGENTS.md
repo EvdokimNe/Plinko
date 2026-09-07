@@ -102,16 +102,20 @@ the editor completion, go-to-definition and argument checking; `defold-annotatio
 Monarch are written the same way. Every exported function carries a `---` summary line and its
 `---@param` / `---@return`. That part is infrastructure and is not what "too many comments" means.
 
-Everything else earns its place only by saying what the code cannot:
-- a module header, one or two lines — what the file is for, not how it works;
-- an invariant, a non-obvious formula, a workaround for someone else's bug, or an alternative
-  that was tried and rejected;
-- in `config/`, what a knob does and what it feels like when turned.
+Everything else earns its place only by saying what the code cannot: an invariant, a non-obvious
+formula, a platform constraint, a workaround for someone else's bug, an alternative that was tried
+and rejected. In `config/`, also what a knob does and what it feels like when turned.
+
+A module header says what the file is for, and carries whatever of the above belongs to the file
+as a whole. It has no line budget while it does that — `rng.lua` earns seven lines by recording
+why the standard generator is unusable here and why its constants are what they are. A header that
+only restates what the functions below already say is too long at two lines.
 
 Do not narrate what a line does. Never restate a fact that already lives in another file — a
-duplicated number turns into a lie at the first edit and no test catches it. Allowed ranges are
-declared once, in `config/init.lua`; the domain config files point at it instead of repeating
-the bounds.
+duplicated number turns into a lie at the first edit and no test catches it, and a duplicated
+explanation means neither copy is the one that gets updated. Allowed ranges are declared once, in
+`config/init.lua`; the domain config files point at it instead of repeating the bounds. A trap
+that bites at several call sites is written once in `PITFALLS.md`, not re-explained at each site.
 
 ## Files
 Defold's `.collection`, `.go`, `.atlas`, `.input_binding` and `game.project` are plain text —
@@ -163,7 +167,9 @@ Traps that belong to this workstation rather than to the project go in `plans/pi
   project, `GET /console` to read the output, `GET /preview/{path}` to see a scene as a PNG
   without opening it, `GET /ref` to search the engine API. Port and token are in
   `.internal/editor.port` and `.internal/editor.token`.
-- **Tests** are a separate bundle: `test.settings` swaps the bootstrap collection for
+- **Tests**: `powershell -File tools/test.ps1`, or **Project → Run Tests** in the editor. Both
+  run the same script. It fetches bob on first use and exits with the test status code.
+- Under the hood tests are a separate bundle: `test.settings` swaps the bootstrap collection for
   `/test/test.collection`, which requires every suite and runs deftest. A Windows bundle prints
   nothing to stdout, so the settings turn on `write_log_file` and the results are read from
   `log.txt` beside the executable.

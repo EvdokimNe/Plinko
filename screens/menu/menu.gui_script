@@ -15,8 +15,7 @@ function init(self)
 
 	self.balls = gui.get_node("balls")
 
-	-- Kept on self so `final` can unsubscribe exactly this closure: the service outlives the
-	-- screen, and a callback left behind would write into destroyed nodes.
+	-- On self so `final` can unsubscribe exactly this one. See PITFALLS.md.
 	self.on_balls = function(balance)
 		show_balls(self, balance)
 	end

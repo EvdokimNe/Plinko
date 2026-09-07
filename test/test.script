@@ -12,6 +12,7 @@ local SUITES = {
 	require("features.board.tests.payout_test"),
 	require("features.board.tests.stats_test"),
 	require("features.board.tests.pool_test"),
+	require("features.board.tests.fall_test"),
 	require("features.currency.tests.wallet_test"),
 	require("features.currency.tests.regeneration_test"),
 }

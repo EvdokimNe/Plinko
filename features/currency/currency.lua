@@ -1,8 +1,7 @@
 --- The service the rest of the game talks to about balances.
 -- State lives here on purpose. The wallet outlives every screen: the menu shows the ball count,
--- the game screen spends balls, and refilling continues while neither is open. This is the
--- pattern Defold itself uses — Monarch keeps its screen stack and Druid its widget registry the
--- same way — and it is created at one known point rather than appearing by accident.
+-- the game screen spends balls, and refilling continues while neither is open. It is installed
+-- at one known point rather than appearing by accident.
 -- The logic behind it (`wallet`, `regeneration`) stays stateless and is tested directly.
 local event = require("event.event")
 local regeneration = require("features.currency.logic.regeneration")

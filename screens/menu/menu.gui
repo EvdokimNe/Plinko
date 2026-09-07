@@ -3,6 +3,10 @@ fonts {
   name: "default"
   font: "/builtins/fonts/default.font"
 }
+textures {
+  name: "ui"
+  texture: "/assets/ui/ui.atlas"
+}
 nodes {
   position {
     x: 360.0
@@ -16,6 +20,7 @@ nodes {
   text: "PLINKO"
   font: "default"
   id: "title"
+  layer: "text"
   inherit_alpha: true
 }
 nodes {
@@ -31,6 +36,7 @@ nodes {
   text: "Balls: -"
   font: "default"
   id: "balls"
+  layer: "text"
   inherit_alpha: true
 }
 nodes {
@@ -39,34 +45,44 @@ nodes {
     y: 560.0
   }
   size {
-    x: 300.0
-    y: 120.0
+    x: 86.0
+    y: 84.0
   }
-  color {
-    x: 0.32
-    y: 0.78
-    z: 0.24
+  scale {
+    x: 1.6
+    y: 1.6
   }
   type: TYPE_BOX
+  texture: "ui/btn_green_normal"
   id: "play"
+  layer: "graphics"
   inherit_alpha: true
 }
 nodes {
+  position {
+    y: -70.0
+  }
   size {
     x: 300.0
-    y: 120.0
+    y: 60.0
   }
-  color {
-    x: 0.1
-    y: 0.2
-    z: 0.1
+  scale {
+    x: 0.6
+    y: 0.6
   }
   type: TYPE_TEXT
   text: "PLAY"
   font: "default"
   id: "play_label"
   parent: "play"
+  layer: "text"
   inherit_alpha: true
+}
+layers {
+  name: "graphics"
+}
+layers {
+  name: "text"
 }
 material: "/builtins/materials/gui.material"
 adjust_reference: ADJUST_REFERENCE_PARENT

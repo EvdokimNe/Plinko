@@ -4,38 +4,102 @@ local board_view = require("features.board.view.board_view")
 local config = require("config.init")
 local currency = require("features.currency.currency")
 local druid = require("druid.druid")
+local falling = require("features.board.view.falling")
 local monarch = require("monarch.monarch")
+local payout = require("features.board.logic.payout")
+local rng = require("features.board.logic.rng")
+local stats = require("features.board.logic.stats")
 
 local BALLS = "balls"
 local SCORE = "score"
 
+local GLOW_PULSE_TIME = 0.12
+
 local function show_balls(self, balance)
 	gui.set_text(self.balls_label, "BALLS " .. balance)
-	self.drop_many:set_enabled(balance >= self.drop_config.multi_count)
 	self.drop_one:set_enabled(balance >= 1)
+	self.drop_many:set_enabled(balance >= self.drop_config.multi_count)
 end
 
 local function show_score(self, balance)
 	gui.set_text(self.score_label, "SCORE " .. balance)
 end
 
+--- Pays a win and counts it. Called on landing, and for every ball still falling when the
+--- screen closes.
+local function settle(self, ball)
+	local drop = payout.release(self.payout, ball.payout_id)
+	if not drop then
+		return
+	end
+	currency.add(SCORE, drop.score)
+	stats.record(self.stats, drop.basket, drop.score)
+end
+
+local function pulse_pin(self, index)
+	local glow = self.nodes.glows[index]
+	if not glow then
+		return
+	end
+
+	local base = self.glow_scale
+	gui.set_scale(glow, base * 1.35)
+	gui.animate(glow, gui.PROP_SCALE, base, gui.EASING_OUTQUAD, GLOW_PULSE_TIME)
+end
+
+local function launch(self)
+	if not currency.spend(BALLS, 1) then
+		return
+	end
+
+	local drop = board.drop(self.board, self.outcome_rng, self.route_rng)
+	local id = payout.hold(self.payout, drop)
+
+	local x, y = board.ball_position(self.board, drop.positions, 0)
+	local node = ball_view.take(self.balls_pool, x, y)
+	falling.launch(self.falling, node, drop, id)
+end
+
 function init(self)
 	msg.post(".", "acquire_input_focus")
 
 	local settings = config.get()
+	local view = settings.board.view
 	self.drop_config = settings.drop
-	self.board = board.new(settings.board, settings.board.view.width, settings.board.view.height)
+	self.board = board.new(settings.board, view.width, view.height)
+	self.glow_scale = vmath.vector3(view.pin_scale * view.pin_glow_scale)
 
-	board_view.build(self.board, settings.board.view)
-	self.balls = ball_view.new(settings.board.view)
+	self.nodes = board_view.build(self.board, view)
+	self.balls_pool = ball_view.new(view)
+	self.payout = payout.new()
+	self.stats = stats.new(self.board.config.baskets)
+
+	-- Two streams: visual tuning must not move the odds.
+	local seed = math.floor(socket.gettime() * 1000)
+	self.outcome_rng = rng.new(seed)
+	self.route_rng = rng.new(seed + 7919)
+
+	self.falling = falling.new(self.board.geometry, settings.board.fall, {
+		on_land = function(ball)
+			settle(self, ball)
+			ball_view.give(self.balls_pool, ball.node)
+		end,
+		on_strike = function(index)
+			pulse_pin(self, index)
+		end,
+	})
 
 	self.druid = druid.new(self)
 	self.score_label = gui.get_node("score")
 	self.balls_label = gui.get_node("balls_label")
 	self.timer_label = gui.get_node("timer_label")
 
-	self.drop_one = self.druid:new_button("drop_one", function() end)
-	self.drop_many = self.druid:new_button("drop_many", function() end)
+	self.drop_one = self.druid:new_button("drop_one", function()
+		launch(self)
+	end)
+	self.drop_many = self.druid:new_button("drop_many", function()
+		launch(self)
+	end)
 	self.druid:new_button("grant", function()
 		currency.add(BALLS, self.drop_config.multi_count)
 	end)
@@ -43,8 +107,6 @@ function init(self)
 		monarch.back()
 	end)
 
-	-- Kept on self so `final` can unsubscribe exactly these closures: the currency service
-	-- outlives this screen, and a callback left behind would write into destroyed nodes.
 	self.on_balls = function(balance)
 		show_balls(self, balance)
 	end
@@ -59,14 +121,20 @@ function init(self)
 end
 
 function final(self)
+	-- Falls are disposable, wins are not: drop the animations, pay everything still held.
+	for _, ball in ipairs(falling.cancel_all(self.falling)) do
+		settle(self, ball)
+	end
+	ball_view.give_all(self.balls_pool)
+
 	currency.off_change(BALLS, self.on_balls)
 	currency.off_change(SCORE, self.on_score)
-	ball_view.give_all(self.balls)
 	self.druid:final()
 end
 
 function update(self, dt)
 	self.druid:update(dt)
+	falling.update(self.falling, dt)
 
 	local seconds = currency.time_to_next(BALLS)
 	gui.set_text(self.timer_label, seconds and ("NEXT %.0f"):format(seconds) or "NEXT --")

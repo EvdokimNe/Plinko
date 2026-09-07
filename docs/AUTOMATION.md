@@ -79,17 +79,24 @@ curl -s      -H "Authorization: Bearer $TOKEN" "http://127.0.0.1:$PORT/console"
 The test runner collection prints results to the console and exits the engine with a status
 code; `/console` is where those results are read.
 
-**Locally — as a bundle.** `test.settings` points the bootstrap at `/test/test.collection` and
-turns on the log file, because a Windows GUI bundle writes nothing to stdout:
+**Locally — one command, or one menu item.**
 
-```powershell
-& $java -jar plans\tools\bob.jar --archive --platform x86_64-win32 --settings test.settings --bundle-output dist\tests build bundle
-& ".\dist\tests\Plinko Tests\PlinkoTests.exe"          # exits with the test status code
-Get-Content ".\dist\tests\Plinko Tests\log.txt"        # the report
+```bash
+powershell -File tools/test.ps1
 ```
 
-Suites are listed in `test/test.script` as already-required values, never as names — bob finds
-Lua dependencies by reading `require` string literals.
+The script downloads `bob.jar` on first use, finds a Java 25 runtime (preferring the one bundled
+with the editor, since bob refuses anything older), builds the test bundle, runs it, prints the
+report and exits with the test status code. `-Quiet` prints the summary line only.
+
+`tools/tests.editor_script` adds **Project → Run Tests** to the editor menu and calls the same
+script, so there is one way to run tests rather than three that drift apart. After adding or
+changing an editor script, the editor picks it up through `POST /command/reload-extensions`.
+
+Two things the script has to handle, both learned the hard way: `$ErrorActionPreference = "Stop"`
+turns bob's ordinary stderr warnings into a fatal error, and `project.log_dir = .` resolves
+against the process working directory, so the runner is started with `-WorkingDirectory` set to
+the bundle folder or the log lands somewhere else.
 
 **In CI — headless.** GitHub Actions has no editor, so the runner downloads `bob.jar` and
 `dmengine_headless` for the engine sha1 in use, builds, and runs the binary. Its exit code is

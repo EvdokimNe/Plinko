@@ -31,6 +31,13 @@ point at the old one.
 **Cause:** Defold does not guarantee `init()` order between game objects.
 **Fix:** wait for a message, never for luck.
 
+### A closed screen still receives callbacks and writes into dead nodes
+**Symptom:** a gui error about a deleted node, a moment after leaving the screen.
+**Cause:** a service that outlives the screen still holds the callback the screen subscribed
+with. A closure passed straight into `subscribe` cannot be named again, so it can never be
+unsubscribed and the subscription survives the scene.
+**Fix:** keep the callback on `self`, and unsubscribe exactly it in `final`.
+
 ### A physics body drifts away from its collision shape
 **Symptom:** visuals and collisions disagree after moving an object.
 **Cause:** `go.set_position` teleports a physics body outside the simulation.
@@ -62,6 +69,13 @@ posted `acquire_input_focus`.
 
 ### Build fails on a missing `event` module
 **Cause:** Druid does not vendor `defold-event`; it is a separate pinned dependency.
+
+### A global button style crashes on a button with no texture
+**Symptom:** `Animation 'x' invalid for node 'y' (no animation set)` when clicking some button.
+**Cause:** `druid.set_default_style` applies to **every** button in the game, including plain
+coloured boxes with no atlas texture, and `gui.play_flipbook` on those is a runtime error.
+**Fix:** check `gui.get_flipbook(node)` before swapping the sprite, so buttons that do not use
+the shared art are left alone.
 
 ## Monarch
 

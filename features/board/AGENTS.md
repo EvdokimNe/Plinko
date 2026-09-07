@@ -99,6 +99,34 @@ couple in total.
 `rows = 15` would be 240 before the pool and the panel. Running out shows up as a failing
 `clone_tree`, not as a warning.
 
+## The fall
+
+Position is a pure function of the path and a normalised time, so a fall owns no engine
+animation and cancelling one is dropping it.
+
+```lua
+fall.new(geometry, positions, fall_config)   -- anchors and per-row timing
+fall.position(state, t)                      -- x, y, row being crossed
+fall.struck_pin(positions, row)              -- index into the flat pin list
+
+falling.new(geometry, fall_config, handlers) -- handlers: on_land, on_strike
+falling.launch(state, node, drop, payout_id)
+falling.update(state, dt)
+falling.cancel_all(state)                    -- returns the dropped balls
+falling.count(state)
+```
+
+The last anchor is the basket, not the row above it, so a ball comes to rest inside the cell.
+`row_pace` distributes the total time across rows: below 1 the ball accelerates, above 1 it
+slows. The sideways arc and the hop both vanish at segment ends, so every row anchor is hit
+exactly.
+
+A ball entering row `r` from position `p` strikes pin `p + 1`, index `r(r-1)/2 + p + 1`. A test
+checks the formula against the nearest pin by x, for every row and slot.
+
+**Closing the screen cancels the falls and pays every held win.** The animation is disposable,
+the win is not — two separate steps, `falling.cancel_all` and `payout.release_all`.
+
 ## Common pitfalls
 
 - **A textbook LCG loses precision in Lua.** With multiplier `1103515245` the product exceeds

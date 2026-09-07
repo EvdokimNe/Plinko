@@ -24,8 +24,7 @@ function M.new(board_config, width, height)
 	}
 end
 
---- Drops one ball. The score is earned here, before anything is animated — closing the screen
---- mid-fall loses the animation, never the win.
+--- Drops one ball. The score is earned here, before anything is animated.
 ---@param state table
 ---@param outcome_rng table decides the basket, nothing else touches it
 ---@param route_rng table decides the slot and the turns

@@ -1,9 +1,6 @@
 --- A pool of reusable things.
 -- Knows nothing about gui: it is handed a factory and hands back whatever that factory makes.
 -- That keeps it testable without a scene, and lets the same pool serve any repeated view.
--- Balls are pooled because a queued multi-drop puts several in the air at once and the debug
--- grant can push far more; creating and destroying nodes per drop would churn the scene graph
--- for nothing.
 local M = {}
 
 --- Builds the pool and fills it.
