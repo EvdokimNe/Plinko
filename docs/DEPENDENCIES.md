@@ -60,3 +60,6 @@ Not a dependency of the game, but of the workflow:
   repository in `plans/tools/`.
 - It needs **Java 25**; the JDK bundled with the editor works:
   `E:/dev/Defold/packages/jdk-25+36/bin/java`.
+
+How these tools are actually driven — together with the editor and engine HTTP APIs — is in
+[AUTOMATION.md](AUTOMATION.md).

@@ -127,27 +127,17 @@ before debugging anything that "should work", and add to it every time something
 Traps that belong to this workstation rather than to the project go in `plans/pitfalls-env.md`.
 
 ## Build and test
-Bob is the build tool. It needs Java 25 and **must be run from PowerShell** — under Git Bash it
-cannot start its internal HTTP client and dies before building.
+`docs/AUTOMATION.md` holds the commands and why each exists. The short version:
 
-```powershell
-$java = "E:\dev\Defold\packages\jdk-25+36\bin\java.exe"
-& $java -jar plans\tools\bob.jar resolve                       # fetch dependencies
-& $java -jar plans\tools\bob.jar --archive build               # compile, report errors
-& $java -jar plans\tools\bob.jar --archive --platform wasm-web --bundle-output dist\bundle build bundle
-```
+- **Bob** for anything reproducible — compile checks, the HTML5 bundle, CI. Needs Java 25 and
+  **only runs from PowerShell**. HTML5 is `wasm-web`, not `js-web`.
+- **The open editor's HTTP API** for everything interactive: `POST /command/build` to run the
+  project, `GET /console` to read the output, `GET /preview/{path}` to see a scene as a PNG
+  without opening it, `GET /ref` to search the engine API. Port and token are in
+  `.internal/editor.port` and `.internal/editor.token`.
+- **Tests** run through the editor locally and headless in CI.
 
-The HTML5 platform is `wasm-web`. `js-web` was removed and bob rejects it.
-
-The editor is normally open and serves a local HTTP API — port in `.internal/editor.port`,
-bearer token in `.internal/editor.token`:
-`GET /console` (console output), `POST /command/{command}` (run an editor command),
-`GET /preview/{path}` (render a scene as PNG), `GET /ref` (API reference search),
-`POST /eval` (Lua in the editor runtime). Use it to see what the editor sees; use Bob for
-anything that has to be reproducible.
-
-There is no official Defold MCP server, and none is needed: these interfaces are the supported
-automation surface.
+There is no official Defold MCP server and none is needed — these are the supported interfaces.
 
 ## Approval
 Ask before: committing or pushing, adding a dependency, changing `game.project` settings that
