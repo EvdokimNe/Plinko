@@ -1,20 +1,75 @@
+local ball_view = require("features.board.view.ball_view")
+local board = require("features.board.logic.board")
+local board_view = require("features.board.view.board_view")
+local config = require("config.init")
+local currency = require("features.currency.currency")
 local druid = require("druid.druid")
 local monarch = require("monarch.monarch")
 
+local BALLS = "balls"
+local SCORE = "score"
+
+local function show_balls(self, balance)
+	gui.set_text(self.balls_label, "BALLS " .. balance)
+	self.drop_many:set_enabled(balance >= self.drop_config.multi_count)
+	self.drop_one:set_enabled(balance >= 1)
+end
+
+local function show_score(self, balance)
+	gui.set_text(self.score_label, "SCORE " .. balance)
+end
+
 function init(self)
 	msg.post(".", "acquire_input_focus")
+
+	local settings = config.get()
+	self.drop_config = settings.drop
+	self.board = board.new(settings.board, settings.board.view.width, settings.board.view.height)
+
+	board_view.build(self.board, settings.board.view)
+	self.balls = ball_view.new(settings.board.view)
+
 	self.druid = druid.new(self)
+	self.score_label = gui.get_node("score")
+	self.balls_label = gui.get_node("balls_label")
+	self.timer_label = gui.get_node("timer_label")
+
+	self.drop_one = self.druid:new_button("drop_one", function() end)
+	self.drop_many = self.druid:new_button("drop_many", function() end)
+	self.druid:new_button("grant", function()
+		currency.add(BALLS, self.drop_config.multi_count)
+	end)
 	self.druid:new_button("back", function()
 		monarch.back()
 	end)
+
+	-- Kept on self so `final` can unsubscribe exactly these closures: the currency service
+	-- outlives this screen, and a callback left behind would write into destroyed nodes.
+	self.on_balls = function(balance)
+		show_balls(self, balance)
+	end
+	self.on_score = function(balance)
+		show_score(self, balance)
+	end
+	currency.on_change(BALLS, self.on_balls)
+	currency.on_change(SCORE, self.on_score)
+
+	show_balls(self, currency.balance(BALLS))
+	show_score(self, currency.balance(SCORE))
 end
 
 function final(self)
+	currency.off_change(BALLS, self.on_balls)
+	currency.off_change(SCORE, self.on_score)
+	ball_view.give_all(self.balls)
 	self.druid:final()
 end
 
 function update(self, dt)
 	self.druid:update(dt)
+
+	local seconds = currency.time_to_next(BALLS)
+	gui.set_text(self.timer_label, seconds and ("NEXT %.0f"):format(seconds) or "NEXT --")
 end
 
 function on_message(self, message_id, message, sender)

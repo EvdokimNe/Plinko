@@ -1,8 +1,8 @@
 --- Board geometry, payout table and the tuning of how a ball falls.
--- Every number here is clamped on read by config/init.lua to the range noted beside it.
+-- Numbers here are clamped on read. The allowed ranges live in config/init.lua (RANGES).
 return {
 	-- Rows of pins. A uniform pyramid: row N has N pins, so `rows` rows give `rows + 1` slots.
-	-- Range 1..20. Example: 9 rows -> 10 slots.
+	-- Example: 9 rows -> 10 slots.
 	rows = 9,
 
 	-- Which basket sits under each slot, left to right. Length must be `rows + 1`.
@@ -21,24 +21,52 @@ return {
 
 	path = {
 		-- How direct the ball looks on its way to the basket it already won.
-		-- Range -1..1. 0 = every path to that basket is equally likely.
+		-- 0 = every path to that basket is equally likely.
 		-- Above 0 the ball spreads its turns evenly and looks calmer; below 0 it clumps
 		-- them and swings wider. Never changes which basket it lands in.
 		straightness = 0.0,
 	},
 
+	-- Everything visual. Pixels and scales only — nothing here changes odds or paths.
+	view = {
+		-- Size of the board area the pyramid is fitted into, in pixels.
+		-- The art is 560x780; the pyramid and the baskets share this box.
+		width = 560,
+		height = 700,
+
+		-- Vertical centre of the board area, measured from the centre of the screen.
+		-- Negative moves it down, to leave room for the top panel.
+		offset_y = -40,
+
+		-- Scale applied to the pin sprite. The art is 44px against a 56px step at ten slots,
+		-- so it starts at half size to leave a gap for the ball.
+		pin_scale = 0.5,
+
+		-- Scale of the glow underlay behind a pin, relative to the pin itself.
+		pin_glow_scale = 1.4,
+
+		-- Scale applied to the ball sprite. The art is 40px.
+		ball_scale = 0.6,
+
+		-- Height of a basket cell, in pixels.
+		basket_height = 70,
+
+		-- How many ball views to create up front. The pool grows past this if needed.
+		ball_pool_size = 12,
+	},
+
 	fall = {
-		-- Seconds for the whole drop, top row to basket. Range 0.2..10.
+		-- Seconds for the whole drop, top row to basket.
 		duration = 1.2,
 
-		-- Time spent on a row, relative to the rows above it. Range 0.2..3.
+		-- Time spent on a row, relative to the rows above it.
 		-- Below 1 the ball speeds up as it falls, above 1 it slows down.
 		row_pace = 0.9,
 
-		-- Sideways kick when bouncing off a pin, in pixels. Range 0..60.
+		-- Sideways kick when bouncing off a pin, in pixels.
 		bounce_x = 14,
 
-		-- Upward hop after hitting a pin, in pixels. Range 0..60.
+		-- Upward hop after hitting a pin, in pixels.
 		bounce_y = 10,
 	},
 }

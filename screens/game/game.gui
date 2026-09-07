@@ -3,55 +3,317 @@ fonts {
   name: "default"
   font: "/builtins/fonts/default.font"
 }
+textures {
+  name: "ui"
+  texture: "/assets/ui/ui.atlas"
+}
 nodes {
   position {
     x: 360.0
-    y: 1180.0
+    y: 600.0
+  }
+  size {
+    x: 560.0
+    y: 780.0
+  }
+  type: TYPE_BOX
+  texture: "ui/body"
+  id: "board"
+  layer: "graphics"
+  inherit_alpha: true
+}
+nodes {
+  size {
+    x: 0.0
+    y: 0.0
+  }
+  type: TYPE_BOX
+  id: "glows"
+  parent: "board"
+  layer: "graphics"
+  inherit_alpha: true
+}
+nodes {
+  size {
+    x: 0.0
+    y: 0.0
+  }
+  type: TYPE_BOX
+  id: "pins"
+  parent: "board"
+  layer: "graphics"
+  inherit_alpha: true
+}
+nodes {
+  size {
+    x: 0.0
+    y: 0.0
+  }
+  type: TYPE_BOX
+  id: "baskets"
+  parent: "board"
+  layer: "graphics"
+  inherit_alpha: true
+}
+nodes {
+  size {
+    x: 0.0
+    y: 0.0
+  }
+  type: TYPE_BOX
+  id: "balls"
+  parent: "board"
+  layer: "graphics"
+  inherit_alpha: true
+}
+nodes {
+  size {
+    x: 44.0
+    y: 44.0
+  }
+  type: TYPE_BOX
+  texture: "ui/ball_3"
+  id: "glow_template"
+  parent: "board"
+  layer: "graphics"
+  inherit_alpha: true
+  enabled: false
+}
+nodes {
+  size {
+    x: 44.0
+    y: 44.0
+  }
+  type: TYPE_BOX
+  texture: "ui/ball_2"
+  id: "pin_template"
+  parent: "board"
+  layer: "graphics"
+  inherit_alpha: true
+  enabled: false
+}
+nodes {
+  size {
+    x: 40.0
+    y: 40.0
+  }
+  type: TYPE_BOX
+  texture: "ui/ball_1"
+  id: "ball_template"
+  parent: "board"
+  layer: "graphics"
+  inherit_alpha: true
+  enabled: false
+}
+nodes {
+  size {
+    x: 52.0
+    y: 70.0
+  }
+  color {
+    x: 0.16
+    y: 0.55
+    z: 0.85
+  }
+  type: TYPE_BOX
+  id: "basket_template"
+  parent: "board"
+  layer: "graphics"
+  inherit_alpha: true
+  enabled: false
+}
+nodes {
+  size {
+    x: 52.0
+    y: 40.0
+  }
+  scale {
+    x: 0.7
+    y: 0.7
+  }
+  type: TYPE_TEXT
+  text: "0"
+  font: "default"
+  id: "basket_label"
+  parent: "basket_template"
+  layer: "text"
+  inherit_alpha: true
+}
+nodes {
+  position {
+    x: 360.0
+    y: 1210.0
   }
   size {
     x: 600.0
-    y: 60.0
+    y: 50.0
   }
   type: TYPE_TEXT
-  text: "GAME"
+  text: "SCORE 0"
   font: "default"
-  id: "title"
+  id: "score"
+  layer: "text"
+  inherit_alpha: true
+}
+nodes {
+  position {
+    x: 200.0
+    y: 1150.0
+  }
+  size {
+    x: 300.0
+    y: 40.0
+  }
+  type: TYPE_TEXT
+  text: "BALLS 0"
+  font: "default"
+  id: "balls_label"
+  layer: "text"
+  inherit_alpha: true
+}
+nodes {
+  position {
+    x: 520.0
+    y: 1150.0
+  }
+  size {
+    x: 300.0
+    y: 40.0
+  }
+  type: TYPE_TEXT
+  text: "NEXT --"
+  font: "default"
+  id: "timer_label"
+  layer: "text"
+  inherit_alpha: true
+}
+nodes {
+  position {
+    x: 180.0
+    y: 140.0
+  }
+  size {
+    x: 86.0
+    y: 84.0
+  }
+  type: TYPE_BOX
+  texture: "ui/btn_green_normal"
+  id: "drop_one"
+  layer: "graphics"
+  inherit_alpha: true
+}
+nodes {
+  position {
+    y: -58.0
+  }
+  size {
+    x: 200.0
+    y: 40.0
+  }
+  scale {
+    x: 0.8
+    y: 0.8
+  }
+  type: TYPE_TEXT
+  text: "DROP"
+  font: "default"
+  id: "drop_one_label"
+  parent: "drop_one"
+  layer: "text"
   inherit_alpha: true
 }
 nodes {
   position {
     x: 360.0
-    y: 120.0
+    y: 140.0
   }
   size {
-    x: 240.0
-    y: 100.0
-  }
-  color {
-    x: 0.32
-    y: 0.78
-    z: 0.24
+    x: 86.0
+    y: 84.0
   }
   type: TYPE_BOX
-  id: "back"
+  texture: "ui/btn_green_normal"
+  id: "drop_many"
+  layer: "graphics"
   inherit_alpha: true
 }
 nodes {
-  size {
-    x: 240.0
-    y: 100.0
+  position {
+    y: -58.0
   }
-  color {
-    x: 0.1
-    y: 0.2
-    z: 0.1
+  size {
+    x: 200.0
+    y: 40.0
+  }
+  scale {
+    x: 0.8
+    y: 0.8
   }
   type: TYPE_TEXT
-  text: "BACK"
+  text: "DROP x5"
   font: "default"
-  id: "back_label"
-  parent: "back"
+  id: "drop_many_label"
+  parent: "drop_many"
+  layer: "text"
   inherit_alpha: true
+}
+nodes {
+  position {
+    x: 540.0
+    y: 140.0
+  }
+  size {
+    x: 86.0
+    y: 84.0
+  }
+  type: TYPE_BOX
+  texture: "ui/btn_green_normal"
+  id: "grant"
+  layer: "graphics"
+  inherit_alpha: true
+}
+nodes {
+  position {
+    y: -58.0
+  }
+  size {
+    x: 200.0
+    y: 40.0
+  }
+  scale {
+    x: 0.8
+    y: 0.8
+  }
+  type: TYPE_TEXT
+  text: "+5 BALLS"
+  font: "default"
+  id: "grant_label"
+  parent: "grant"
+  layer: "text"
+  inherit_alpha: true
+}
+nodes {
+  position {
+    x: 80.0
+    y: 1210.0
+  }
+  size {
+    x: 120.0
+    y: 50.0
+  }
+  type: TYPE_TEXT
+  text: "< BACK"
+  font: "default"
+  id: "back"
+  layer: "text"
+  inherit_alpha: true
+}
+layers {
+  name: "graphics"
+}
+layers {
+  name: "text"
 }
 material: "/builtins/materials/gui.material"
 adjust_reference: ADJUST_REFERENCE_PARENT
+max_nodes: 1024

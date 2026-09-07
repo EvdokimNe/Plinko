@@ -96,6 +96,23 @@ dense, no prose padding, and in this order.
 
 Read a feature's `AGENTS.md` before changing that feature. Write one when you create it.
 
+## Comments
+`---` annotations are types, not prose. lua-language-server reads them, and they are what gives
+the editor completion, go-to-definition and argument checking; `defold-annotations`, Druid and
+Monarch are written the same way. Every exported function carries a `---` summary line and its
+`---@param` / `---@return`. That part is infrastructure and is not what "too many comments" means.
+
+Everything else earns its place only by saying what the code cannot:
+- a module header, one or two lines — what the file is for, not how it works;
+- an invariant, a non-obvious formula, a workaround for someone else's bug, or an alternative
+  that was tried and rejected;
+- in `config/`, what a knob does and what it feels like when turned.
+
+Do not narrate what a line does. Never restate a fact that already lives in another file — a
+duplicated number turns into a lie at the first edit and no test catches it. Allowed ranges are
+declared once, in `config/init.lua`; the domain config files point at it instead of repeating
+the bounds.
+
 ## Files
 Defold's `.collection`, `.go`, `.atlas`, `.input_binding` and `game.project` are plain text —
 edit them directly, do not ask the developer to click in the editor. `.gui` is text too but

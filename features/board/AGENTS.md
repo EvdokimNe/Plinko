@@ -75,6 +75,30 @@ rendering belongs to the debug layer.
 - Slots are 1-based (`1..rows + 1`) to match `basket_of_slot`; the number of right turns behind a
   slot is `slot - 1`.
 
+## View
+
+Pins, glows, baskets and balls are **cloned from hidden template nodes** in `game.gui`, never
+laid out by hand: their positions come from the row count, so a hand-placed scene would freeze
+`rows` and make the configurable board a lie.
+
+```lua
+board_view.build(state, view_config)   -- pins, glows, baskets, labels
+ball_view.new(view_config)             -- pooled ball nodes
+ball_view.take(state, x, y) / give(state, node) / give_all(state)
+pool.new(create, size) / take / give / give_all / in_use / made
+```
+
+Every visual number lives in `config/board.lua` under `view`. Nothing about the look is written
+into a script.
+
+The scene uses two layers, `graphics` and `text`. Without them a hierarchy of mixed node types
+breaks batching — pins, glows and ten basket labels would cost a draw call each instead of a
+couple in total.
+
+`max_nodes` in `game.gui` is raised to 1024: nine rows is about 100 nodes with glows, and
+`rows = 15` would be 240 before the pool and the panel. Running out shows up as a failing
+`clone_tree`, not as a warning.
+
 ## Common pitfalls
 
 - **A textbook LCG loses precision in Lua.** With multiplier `1103515245` the product exceeds
@@ -85,6 +109,8 @@ rendering belongs to the debug layer.
   seeded generator instead.
 - **Sharing one random stream couples unrelated things.** Drawing the basket and the turns from
   the same generator makes a visual setting shift the outcomes for a given seed.
+- **A pool that fails when empty breaks the debug grant.** Fifty balls at once must not crash the
+  screen, so the pool creates another item instead of refusing.
 - **Factorials overflow long before binomial coefficients do.** Path counts are built
   iteratively, `C(n, k+1) = C(n, k) * (n - k) / (k + 1)`.
 

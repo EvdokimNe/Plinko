@@ -1,8 +1,12 @@
+local button_style = require("main.ui.button_style")
+local druid = require("druid.druid")
 local monarch = require("monarch.monarch")
 
 local SHOW_FIRST_SCREEN = hash("show_first_screen")
 
 function init(self)
+	druid.set_default_style(button_style.create())
+
 	-- Screens register themselves in the init() of their screen scripts, which has not run yet.
 	-- Showing anything from here would silently do nothing, so defer by one message.
 	msg.post("#", "show_first_screen")
