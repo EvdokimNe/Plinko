@@ -21,4 +21,7 @@ scale_mode = stretch
 
 [project]
 title = Plinko
-
+dependencies#0 = https://github.com/Insality/defold-event/archive/refs/tags/16.zip
+dependencies#1 = https://github.com/Insality/druid/archive/refs/tags/1.3.0.zip
+dependencies#2 = https://github.com/britzl/monarch/archive/refs/tags/6.0.2.zip
+dependencies#3 = https://github.com/britzl/deftest/archive/refs/tags/2.8.0.zip
