@@ -1,12 +1,18 @@
 local config = require("config.init")
 local currency = require("features.currency.currency")
+local save = require("features.save.save")
 
 --- Builds the currency service and keeps its refill timers running for the whole session,
 --- whatever screen is open. Screens only read and display it.
 -- This runs in `init`, and the first screen is shown from a message posted in bootstrap's own
 -- `init`, so the service is always installed before any screen can ask for a balance.
 function init(self)
+	save.install()
 	currency.install(config.get().currency)
+
+	-- Balances come from the save file if there is one, defaults otherwise.
+	currency.bind_storage(save.bind)
+	currency.set_persist(save.flush)
 end
 
 function final(self)

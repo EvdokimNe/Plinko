@@ -12,6 +12,7 @@ local M = {}
 local balances
 local timers
 local changed = {}
+local persist
 
 --- Builds the service. Called once, from the composition root.
 ---@param currency_config table the `currency` section of the config
@@ -27,12 +28,16 @@ function M.uninstall()
 	balances = nil
 	timers = nil
 	changed = {}
+	persist = nil
 end
 
 local function notify(id, balance)
 	local signal = changed[id]
 	if signal then
 		signal:trigger(balance)
+	end
+	if persist then
+		persist()
 	end
 end
 
@@ -48,6 +53,20 @@ function M.update(dt)
 	for id, amount in pairs(credits) do
 		notify(id, wallet.add(balances, id, amount))
 	end
+end
+
+--- Hands the balances to a storage layer. The callback receives a key and the table, and
+--- returns the table to use — loaded values included. Called from the composition root, so this
+--- module never depends on a save library.
+---@param bind fun(key: string, value: table): table
+function M.bind_storage(bind)
+	balances.balances = bind("currency", balances.balances)
+end
+
+--- Called after every balance change, so nothing the player earned waits for a timer.
+---@param callback fun()|nil
+function M.set_persist(callback)
+	persist = callback
 end
 
 --- Current balance of a currency.
