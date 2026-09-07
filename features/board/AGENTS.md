@@ -28,6 +28,33 @@ rng.new(seed) / rng.next(rng) / rng.below(rng, n)
 `positions[row + 1]` is the number of right turns taken after `row` rows, so `positions[1]` is
 always 0 and the last entry is always `slot - 1`.
 
+## Decided, then paid
+
+A drop has two moments and they are not the same thing.
+
+**Decided** — `board.drop` fixes the basket, the score and the path. It must happen at the press,
+or the configured probabilities could not hold. Nothing is displayed.
+
+**Paid** — the ball reached its basket. `payout.release` hands the drop back, the balance moves,
+`stats.record` counts it, the labels react.
+
+Everything visible hangs off the second moment; the first only guarantees the second is not
+random. While balls are in the air the balance reads "decided minus in flight" — that is correct,
+not a bug: the points exist, they are held.
+
+```lua
+payout.new() / hold(state, drop) -> id / release(state, id) -> drop
+payout.release_all(state) -> drops      -- leaving mid-fall pays everything at once
+payout.pending(state)
+
+stats.new(baskets) / record(state, basket, score) / reset(state)
+stats.report(state, configured)   -- rows: basket, hits, share, configured, points
+stats.totals(state)               -- drops, points
+```
+
+`stats` counts landings, never launches, and computes shares without formatting them —
+rendering belongs to the debug layer.
+
 ## Invariants
 
 - The score is earned inside `drop`, before anything is animated. Closing the screen mid-fall
@@ -40,6 +67,11 @@ always 0 and the last entry is always `slot - 1`.
 - A slot inside a basket is drawn in proportion to `C(rows, slot - 1)` — the number of distinct
   paths reaching it — so a wide basket behaves like a real board rather than a uniform pick.
 - Pixel sizes come from the caller. The logic holds no hard-coded coordinates.
+- The score is credited on release, never on decide. `payout.release_all` is what makes leaving
+  the screen mid-fall lose the animation and keep the win.
+- A held drop pays exactly once: releasing the same id twice returns nil the second time, so a
+  double landing cannot double-credit.
+- `release_all` returns drops in launch order, so a queued multi-drop settles predictably.
 - Slots are 1-based (`1..rows + 1`) to match `basket_of_slot`; the number of right turns behind a
   slot is `slot - 1`.
 
@@ -62,3 +94,6 @@ always 0 and the last entry is always `slot - 1`.
   `straightness = ±1`, but if the parameter ever needs a documented unit, this is the constant to
   revisit.
 - Nothing consumes `chances()` yet; it exists for the debug readout in task 009.
+- Payout and stats state lives in the game screen, so counters reset on re-entry. If they should
+  survive leaving the screen, the state moves next to the currency service — both modules are
+  stateless, so it is a one-line move.

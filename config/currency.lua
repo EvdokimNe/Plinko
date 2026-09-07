@@ -18,4 +18,10 @@ return {
 			cap = 10,
 		},
 	},
+
+	-- Points. A currency like any other, so it gets a balance, a change event and a place in
+	-- the save file for free. No `regen` block: points are earned, never refilled.
+	score = {
+		start = 0,
+	},
 }
