@@ -63,10 +63,12 @@ return {
 		-- Below 1 the ball speeds up as it falls, above 1 it slows down.
 		row_pace = 0.9,
 
-		-- Sideways kick when bouncing off a pin, in pixels.
-		bounce_x = 14,
+		-- How sharply the ball leaves a pin sideways. Range 1..4.
+		-- 1 travels evenly between pins; higher darts away and coasts in.
+		escape = 2.2,
 
-		-- Upward hop after hitting a pin, in pixels.
-		bounce_y = 10,
+		-- Upward hop after hitting a pin, in pixels. Range 0..60.
+		-- 0 still accelerates downward, it just does not bounce up.
+		hop = 12,
 	},
 }

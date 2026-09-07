@@ -10,8 +10,8 @@ local RANGES = {
 	{ "board.path.straightness", -1, 1 },
 	{ "board.fall.duration", 0.2, 10 },
 	{ "board.fall.row_pace", 0.2, 3 },
-	{ "board.fall.bounce_x", 0, 60 },
-	{ "board.fall.bounce_y", 0, 60 },
+	{ "board.fall.escape", 1, 4 },
+	{ "board.fall.hop", 0, 60 },
 	{ "drop.queue_interval", 0.05, 5 },
 	{ "drop.multi_count", 2, 50 },
 }
@@ -51,6 +51,11 @@ local function clamp_at(root, path, min, max, label)
 	end
 
 	local value = holder[key]
+	if value == nil then
+		-- A range without a field means the config and the code disagree about what exists.
+		report(("%s%s is missing; the config is out of step with the code"):format(label or "", path))
+		return
+	end
 	if type(value) ~= "number" then
 		return
 	end

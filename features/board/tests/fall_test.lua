@@ -5,7 +5,7 @@ local rng = require("features.board.logic.rng")
 local route = require("features.board.logic.route")
 
 local ROWS = 9
-local CONFIG = { duration = 1.2, row_pace = 0.9, bounce_x = 14, bounce_y = 10 }
+local CONFIG = { duration = 1.2, row_pace = 0.9, escape = 2.2, hop = 12 }
 
 local function geom()
 	return geometry.new(ROWS, 560, 700)
@@ -75,7 +75,7 @@ return function()
 
 		it("stays on the board the whole way", function()
 			local g = geom()
-			local limit = 560 / 2 + CONFIG.bounce_x
+			local limit = 560 / 2 + 1
 			for slot = 1, ROWS + 1 do
 				local state = fall.new(g, path_to(slot, slot * 5), CONFIG)
 				for step = 0, 100 do
@@ -100,8 +100,8 @@ return function()
 		it("changes timing with row_pace but not the endpoint", function()
 			local g = geom()
 			local positions = path_to(8, 11)
-			local fast = fall.new(g, positions, { duration = 1, row_pace = 0.6, bounce_x = 0, bounce_y = 0 })
-			local slow = fall.new(g, positions, { duration = 1, row_pace = 1.5, bounce_x = 0, bounce_y = 0 })
+			local fast = fall.new(g, positions, { duration = 1, row_pace = 0.6, escape = 1, hop = 0 })
+			local slow = fall.new(g, positions, { duration = 1, row_pace = 1.5, escape = 1, hop = 0 })
 
 			assert(fast.weights[1] > fast.weights[ROWS], "row_pace below 1 should speed up")
 			assert(slow.weights[1] < slow.weights[ROWS], "row_pace above 1 should slow down")

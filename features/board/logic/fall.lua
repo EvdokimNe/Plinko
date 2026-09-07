@@ -47,8 +47,8 @@ function M.new(geom, positions, fall_config)
 		rows = rows,
 		anchors = anchors,
 		weights = row_weights(rows, fall_config.row_pace),
-		bounce_x = fall_config.bounce_x,
-		bounce_y = fall_config.bounce_y,
+		escape = fall_config.escape,
+		hop = fall_config.hop,
 	}
 end
 
@@ -74,13 +74,16 @@ function M.position(state, t)
 	local from = state.anchors[row - 1]
 	local to = state.anchors[row]
 
-	-- Smoothstep: leaves a pin quickly, settles into the next one.
-	local eased = u * u * (3 - 2 * u)
-	local arc = math.sin(math.pi * u)
-	local direction = to.x >= from.x and 1 or -1
+	-- Horizontally the ball leaves the pin fast and then travels evenly, so direction changes
+	-- at a pin read as an angle rather than a curve. A smooth ease here makes it look like it
+	-- is rolling down waves.
+	local escaped = 1 - (1 - u) ^ state.escape
+	local x = from.x + (to.x - from.x) * escaped
 
-	local x = from.x + (to.x - from.x) * eased + state.bounce_x * arc * direction
-	local y = from.y + (to.y - from.y) * u + state.bounce_y * arc
+	-- Vertically it is a throw: up off the pin, then accelerating down. With hop = 0 this is
+	-- still accelerated fall, never linear.
+	local dy = to.y - from.y
+	local y = from.y + state.hop * u - (state.hop - dy) * u * u
 
 	return x, y, row
 end

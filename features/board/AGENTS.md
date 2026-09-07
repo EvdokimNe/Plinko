@@ -71,6 +71,8 @@ rendering belongs to the debug layer.
   the screen mid-fall lose the animation and keep the win.
 - A held drop pays exactly once: releasing the same id twice returns nil the second time, so a
   double landing cannot double-credit.
+- Closing the screen settles three things: falls in the air, entries still queued, and any
+  remaining held payout. Queued balls were paid for, so they pay out even though they never flew.
 - `release_all` returns drops in launch order, so a queued multi-drop settles predictably.
 - Slots are 1-based (`1..rows + 1`) to match `basket_of_slot`; the number of right turns behind a
   slot is `slot - 1`.
@@ -126,6 +128,20 @@ checks the formula against the nearest pin by x, for every row and slot.
 
 **Closing the screen cancels the falls and pays every held win.** The animation is disposable,
 the win is not — two separate steps, `falling.cancel_all` and `payout.release_all`.
+
+## The multi-drop queue
+
+```lua
+drop_queue.new(interval) / push(state, entries) / update(state, dt) -> entries
+drop_queue.take_all(state) / count(state)
+```
+
+A press spends the balls, draws every outcome and holds every win **up front**; the queue only
+spaces the launches out. Charging per launch would let the balance be spent elsewhere mid-queue,
+leaving a press half done.
+
+The first entry of an idle queue leaves immediately — waiting an interval before anything happens
+reads as a dead button. A long frame releases several at once rather than losing them.
 
 ## Common pitfalls
 

@@ -3,6 +3,7 @@ local board = require("features.board.logic.board")
 local board_view = require("features.board.view.board_view")
 local config = require("config.init")
 local currency = require("features.currency.currency")
+local drop_queue = require("features.board.logic.drop_queue")
 local druid = require("druid.druid")
 local falling = require("features.board.view.falling")
 local monarch = require("monarch.monarch")
@@ -47,17 +48,26 @@ local function pulse_pin(self, index)
 	gui.animate(glow, gui.PROP_SCALE, base, gui.EASING_OUTQUAD, GLOW_PULSE_TIME)
 end
 
-local function launch(self)
-	if not currency.spend(BALLS, 1) then
+--- Spends the balls, draws every outcome and holds every win up front, then queues them.
+-- Charging per launch instead would let the balance be spent elsewhere mid-queue, leaving the
+-- press half done.
+local function request_drops(self, count)
+	if not currency.spend(BALLS, count) then
 		return
 	end
 
-	local drop = board.drop(self.board, self.outcome_rng, self.route_rng)
-	local id = payout.hold(self.payout, drop)
+	local entries = {}
+	for index = 1, count do
+		local drop = board.drop(self.board, self.outcome_rng, self.route_rng)
+		entries[index] = { drop = drop, payout_id = payout.hold(self.payout, drop) }
+	end
+	drop_queue.push(self.queue, entries)
+end
 
-	local x, y = board.ball_position(self.board, drop.positions, 0)
+local function launch(self, entry)
+	local x, y = board.ball_position(self.board, entry.drop.positions, 0)
 	local node = ball_view.take(self.balls_pool, x, y)
-	falling.launch(self.falling, node, drop, id)
+	falling.launch(self.falling, node, entry.drop, entry.payout_id)
 end
 
 function init(self)
@@ -72,6 +82,7 @@ function init(self)
 	self.nodes = board_view.build(self.board, view)
 	self.balls_pool = ball_view.new(view)
 	self.payout = payout.new()
+	self.queue = drop_queue.new(settings.drop.queue_interval)
 	self.stats = stats.new(self.board.config.baskets)
 
 	-- Two streams: visual tuning must not move the odds.
@@ -95,10 +106,10 @@ function init(self)
 	self.timer_label = gui.get_node("timer_label")
 
 	self.drop_one = self.druid:new_button("drop_one", function()
-		launch(self)
+		request_drops(self, 1)
 	end)
 	self.drop_many = self.druid:new_button("drop_many", function()
-		launch(self)
+		request_drops(self, self.drop_config.multi_count)
 	end)
 	self.druid:new_button("grant", function()
 		currency.add(BALLS, self.drop_config.multi_count)
@@ -121,9 +132,12 @@ function init(self)
 end
 
 function final(self)
-	-- Falls are disposable, wins are not: drop the animations, pay everything still held.
+	-- Falls are disposable, wins are not: drop the animations and the queue, pay everything held.
 	for _, ball in ipairs(falling.cancel_all(self.falling)) do
 		settle(self, ball)
+	end
+	for _, entry in ipairs(drop_queue.take_all(self.queue)) do
+		settle(self, entry)
 	end
 	ball_view.give_all(self.balls_pool)
 
@@ -134,6 +148,14 @@ end
 
 function update(self, dt)
 	self.druid:update(dt)
+
+	local ready = drop_queue.update(self.queue, dt)
+	if ready then
+		for _, entry in ipairs(ready) do
+			launch(self, entry)
+		end
+	end
+
 	falling.update(self.falling, dt)
 
 	local seconds = currency.time_to_next(BALLS)
