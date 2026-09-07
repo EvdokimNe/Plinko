@@ -83,6 +83,21 @@ function M.ball_position(state, positions, row)
 	return geometry.ball(state.geometry, row, positions[row + 1])
 end
 
+--- Paths reaching each basket: the weights that reproduce the pyramid's own distribution.
+-- A basket owning several slots gets the sum of their path counts.
+---@param state table
+---@return number[]
+function M.natural_weights(state)
+	local weights = {}
+	for basket = 1, state.config.baskets do
+		weights[basket] = 0
+	end
+	for slot, basket in ipairs(state.config.basket_of_slot) do
+		weights[basket] = weights[basket] + state.route.counts[slot]
+	end
+	return weights
+end
+
 --- The configured chance of each basket, as fractions of 1. For the debug readout.
 ---@param state table
 ---@return number[]

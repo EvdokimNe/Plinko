@@ -3,13 +3,17 @@ local board = require("features.board.logic.board")
 local board_view = require("features.board.view.board_view")
 local config = require("config.init")
 local currency = require("features.currency.currency")
+local debug_overlay = require("features.debug.debug_overlay")
 local drop_queue = require("features.board.logic.drop_queue")
 local druid = require("druid.druid")
 local falling = require("features.board.view.falling")
+local report = require("features.debug.logic.report")
 local monarch = require("monarch.monarch")
 local payout = require("features.board.logic.payout")
 local rng = require("features.board.logic.rng")
 local stats = require("features.board.logic.stats")
+
+local DEBUG = hash("debug")
 
 local BALLS = "balls"
 local SCORE = "score"
@@ -83,6 +87,7 @@ function init(self)
 	self.balls_pool = ball_view.new(view)
 	self.payout = payout.new()
 	self.queue = drop_queue.new(settings.drop.queue_interval)
+	self.overlay = debug_overlay.new({ x = 20, y = 1240 })
 	self.stats = stats.new(self.board.config.baskets)
 
 	-- Two streams: visual tuning must not move the odds.
@@ -160,6 +165,14 @@ function update(self, dt)
 
 	local seconds = currency.time_to_next(BALLS)
 	gui.set_text(self.timer_label, seconds and ("NEXT %.0f"):format(seconds) or "NEXT --")
+
+	if debug_overlay.is_visible(self.overlay) then
+		debug_overlay.draw(self.overlay, self.stats, stats.report(self.stats, board.chances(self.board)), {
+			balls = currency.balance(BALLS),
+			in_flight = falling.count(self.falling),
+			queued = drop_queue.count(self.queue),
+		})
+	end
 end
 
 function on_message(self, message_id, message, sender)
@@ -167,5 +180,13 @@ function on_message(self, message_id, message, sender)
 end
 
 function on_input(self, action_id, action)
+	if action_id == DEBUG and action.pressed then
+		if debug_overlay.toggle(self.overlay) then
+			-- Printed on open so the numbers are in the log too, where they can be copied.
+			print("DEBUG: " .. report.weights_line(board.natural_weights(self.board)))
+		end
+		return true
+	end
+
 	return self.druid:on_input(action_id, action)
 end
