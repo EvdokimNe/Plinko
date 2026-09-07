@@ -1,0 +1,64 @@
+# Board
+
+The rules of the drop: which basket a ball wins, and how it gets there. Pure Lua, no Defold API.
+
+## Two layers, deliberately apart
+
+**Outcome** (`logic/outcome.lua`) decides the basket and the score from the configured weights.
+It knows nothing about rows, slots or pixels.
+
+**Route** (`logic/route.lua`) illustrates that decision: it picks a slot of the won basket and
+the turn taken on each row. It decides nothing and cannot change where the ball lands.
+
+They draw from **separate random streams**. Tuning how a fall looks can never move the odds, and
+a change to `straightness` cannot make the distribution tests drift.
+
+## Public API
+
+```lua
+board.new(board_config, width, height)          -- geometry and tables, built once
+board.drop(state, outcome_rng, route_rng)       -- { basket, score, slot, positions }
+board.pin_positions(state)                      -- { x, y, row, index }, for the view
+board.slot_positions(state)                     -- { x, y, slot, basket }, for the view
+board.ball_position(state, positions, row)      -- x, y after `row` rows; row 0 is the release
+board.chances(state)                            -- configured chance per basket, fractions of 1
+rng.new(seed) / rng.next(rng) / rng.below(rng, n)
+```
+
+`positions[row + 1]` is the number of right turns taken after `row` rows, so `positions[1]` is
+always 0 and the last entry is always `slot - 1`.
+
+## Invariants
+
+- The score is earned inside `drop`, before anything is animated. Closing the screen mid-fall
+  loses the animation, never the win.
+- A path always ends at the slot it was built for. Two counters enforce it: with `owed` right
+  turns still needed and `remaining` rows left, going right has probability `owed / remaining`,
+  which forces left when nothing is owed and right when every remaining row is owed.
+- `straightness` (-1..1) only bends that probability by the drift from the straight line, and is
+  clamped back inside the bounds. It changes the look, never the basket.
+- A slot inside a basket is drawn in proportion to `C(rows, slot - 1)` — the number of distinct
+  paths reaching it — so a wide basket behaves like a real board rather than a uniform pick.
+- Pixel sizes come from the caller. The logic holds no hard-coded coordinates.
+- Slots are 1-based (`1..rows + 1`) to match `basket_of_slot`; the number of right turns behind a
+  slot is `slot - 1`.
+
+## Common pitfalls
+
+- **A textbook LCG loses precision in Lua.** With multiplier `1103515245` the product exceeds
+  2^53 and the double silently rounds, so the generator stops being uniform. `rng.lua` uses
+  Park-Miller (`48271`, `2^31-1`), whose product stays inside the safe range.
+- **`math.random` is not the same everywhere.** The engine runs LuaJIT on desktop and Lua 5.1 in
+  the browser. Anything that must replay identically, or must not flake in a test, uses the
+  seeded generator instead.
+- **Sharing one random stream couples unrelated things.** Drawing the basket and the turns from
+  the same generator makes a visual setting shift the outcomes for a given seed.
+- **Factorials overflow long before binomial coefficients do.** Path counts are built
+  iteratively, `C(n, k+1) = C(n, k) * (n - k) / (k + 1)`.
+
+## Known debt
+
+- `DRIFT_RESPONSE` in `route.lua` is tuned by eye, not derived. It reads well at
+  `straightness = ±1`, but if the parameter ever needs a documented unit, this is the constant to
+  revisit.
+- Nothing consumes `chances()` yet; it exists for the debug readout in task 009.

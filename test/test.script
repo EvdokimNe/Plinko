@@ -5,6 +5,10 @@ local deftest = require("deftest.deftest")
 -- literals, so a module required through a variable never reaches the build.
 local SUITES = {
 	require("config.tests.config_test"),
+	require("features.board.tests.rng_test"),
+	require("features.board.tests.outcome_test"),
+	require("features.board.tests.geometry_test"),
+	require("features.board.tests.route_test"),
 }
 
 function init(self)
