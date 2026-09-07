@@ -135,7 +135,13 @@ Traps that belong to this workstation rather than to the project go in `plans/pi
   project, `GET /console` to read the output, `GET /preview/{path}` to see a scene as a PNG
   without opening it, `GET /ref` to search the engine API. Port and token are in
   `.internal/editor.port` and `.internal/editor.token`.
-- **Tests** run through the editor locally and headless in CI.
+- **Tests** are a separate bundle: `test.settings` swaps the bootstrap collection for
+  `/test/test.collection`, which requires every suite and runs deftest. A Windows bundle prints
+  nothing to stdout, so the settings turn on `write_log_file` and the results are read from
+  `log.txt` beside the executable.
+- Suites are listed in `test/test.script` as **already-required values**, never as names:
+  bob finds Lua dependencies by reading `require` string literals, and a module required through
+  a variable never reaches the build.
 
 There is no official Defold MCP server and none is needed — these are the supported interfaces.
 

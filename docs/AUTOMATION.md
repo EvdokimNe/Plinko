@@ -79,6 +79,18 @@ curl -s      -H "Authorization: Bearer $TOKEN" "http://127.0.0.1:$PORT/console"
 The test runner collection prints results to the console and exits the engine with a status
 code; `/console` is where those results are read.
 
+**Locally — as a bundle.** `test.settings` points the bootstrap at `/test/test.collection` and
+turns on the log file, because a Windows GUI bundle writes nothing to stdout:
+
+```powershell
+& $java -jar plans\tools\bob.jar --archive --platform x86_64-win32 --settings test.settings --bundle-output dist\tests build bundle
+& ".\dist\tests\Plinko Tests\PlinkoTests.exe"          # exits with the test status code
+Get-Content ".\dist\tests\Plinko Tests\log.txt"        # the report
+```
+
+Suites are listed in `test/test.script` as already-required values, never as names — bob finds
+Lua dependencies by reading `require` string literals.
+
 **In CI — headless.** GitHub Actions has no editor, so the runner downloads `bob.jar` and
 `dmengine_headless` for the engine sha1 in use, builds, and runs the binary. Its exit code is
 the test result. `dmengine_headless` lives at

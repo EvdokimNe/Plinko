@@ -36,6 +36,13 @@ point at the old one.
 **Cause:** `go.set_position` teleports a physics body outside the simulation.
 **Fix:** forces and velocities only.
 
+### A Lua module is "not found" at runtime although the file exists
+**Symptom:** `module 'a.b.c' not found: no file 'a.b.c'`, but the file is right there.
+**Cause:** bob resolves Lua dependencies by reading `require` **string literals** in the source.
+`require(some_variable)` cannot be resolved, so the module is never packed into the build.
+**Fix:** require with a literal string. Build lists of modules as lists of already-required
+values, not lists of names.
+
 ### `--platform js-web` is rejected
 **Symptom:** `SEVERE Platform js-web not supported`, exit code 1.
 **Cause:** the asm.js target is gone. HTML5 is `wasm-web` (architectures `wasm-web` and

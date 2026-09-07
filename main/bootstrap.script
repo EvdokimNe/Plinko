@@ -1,0 +1,15 @@
+local monarch = require("monarch.monarch")
+
+local SHOW_FIRST_SCREEN = hash("show_first_screen")
+
+function init(self)
+	-- Screens register themselves in the init() of their screen scripts, which has not run yet.
+	-- Showing anything from here would silently do nothing, so defer by one message.
+	msg.post("#", "show_first_screen")
+end
+
+function on_message(self, message_id, message, sender)
+	if message_id == SHOW_FIRST_SCREEN then
+		monarch.show(hash("menu"))
+	end
+end

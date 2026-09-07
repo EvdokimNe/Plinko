@@ -1,0 +1,15 @@
+local deftest = require("deftest.deftest")
+
+--- Every suite in the project, listed explicitly. Order is part of the contract and lives here.
+-- The requires are literal on purpose: bob finds Lua dependencies by reading `require` string
+-- literals, so a module required through a variable never reaches the build.
+local SUITES = {
+	require("config.tests.config_test"),
+}
+
+function init(self)
+	for _, suite in ipairs(SUITES) do
+		deftest.add(suite)
+	end
+	deftest.run()
+end

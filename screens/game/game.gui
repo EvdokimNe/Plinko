@@ -1,0 +1,57 @@
+script: "/screens/game/game.gui_script"
+fonts {
+  name: "default"
+  font: "/builtins/fonts/default.font"
+}
+nodes {
+  position {
+    x: 360.0
+    y: 1180.0
+  }
+  size {
+    x: 600.0
+    y: 60.0
+  }
+  type: TYPE_TEXT
+  text: "GAME"
+  font: "default"
+  id: "title"
+  inherit_alpha: true
+}
+nodes {
+  position {
+    x: 360.0
+    y: 120.0
+  }
+  size {
+    x: 240.0
+    y: 100.0
+  }
+  color {
+    x: 0.32
+    y: 0.78
+    z: 0.24
+  }
+  type: TYPE_BOX
+  id: "back"
+  inherit_alpha: true
+}
+nodes {
+  size {
+    x: 240.0
+    y: 100.0
+  }
+  color {
+    x: 0.1
+    y: 0.2
+    z: 0.1
+  }
+  type: TYPE_TEXT
+  text: "BACK"
+  font: "default"
+  id: "back_label"
+  parent: "back"
+  inherit_alpha: true
+}
+material: "/builtins/materials/gui.material"
+adjust_reference: ADJUST_REFERENCE_PARENT
