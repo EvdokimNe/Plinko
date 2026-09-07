@@ -9,3 +9,14 @@ Thumbs.db
 .project
 .cproject
 builtins
+
+# Implementation plans and working notes — local only, never shipped
+/plans/
+
+# IDE / editor
+/.idea/
+/.vscode/
+*.iml
+
+# Build output
+/dist/
