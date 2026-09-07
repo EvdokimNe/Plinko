@@ -77,7 +77,9 @@ end
 function init(self)
 	msg.post(".", "acquire_input_focus")
 
-	local settings = config.get()
+	-- The menu says which board to build; opening the screen directly falls back to the default.
+	local chosen = monarch.data(hash("game"))
+	local settings = config.get(chosen and chosen.preset)
 	local view = settings.board.view
 	self.drop_config = settings.drop
 	self.board = board.new(settings.board, view.width, view.height)

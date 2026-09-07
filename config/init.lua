@@ -132,9 +132,53 @@ local function fix_weights(board)
 	end
 end
 
-local function load()
+--- Contiguity matters because a basket is drawn as one cell: slots scattered across the board
+--- cannot be one basket without the view lying about where balls land.
+local function check_contiguous(basket_of_slot)
+	local seen = {}
+	local previous
+	for slot, basket in ipairs(basket_of_slot) do
+		if basket ~= previous then
+			if seen[basket] then
+				report(("basket %d owns slots that are not next to each other (slot %d); it will draw as separate cells")
+					:format(basket, slot))
+			end
+			seen[basket] = true
+			previous = basket
+		end
+	end
+end
+
+local function copy(source)
+	local result = {}
+	for key, value in pairs(source) do
+		if type(value) == "table" then
+			result[key] = copy(value)
+		else
+			result[key] = value
+		end
+	end
+	return result
+end
+
+local function find_preset(preset_id)
+	for _, preset in ipairs(require("config.presets")) do
+		if preset.id == preset_id then
+			return preset
+		end
+	end
+	error("unknown board preset: " .. tostring(preset_id))
+end
+
+local function load(preset_id)
+	local board = copy(require("config.board"))
+	for key, value in pairs(find_preset(preset_id).board) do
+		board[key] = type(value) == "table" and copy(value) or value
+	end
+
 	local config = {
-		board = require("config.board"),
+		preset = preset_id,
+		board = board,
 		currency = require("config.currency"),
 		drop = require("config.drop"),
 	}
@@ -153,6 +197,7 @@ local function load()
 	config.drop.multi_count = math.floor(config.drop.multi_count)
 
 	fix_slot_map(config.board)
+	check_contiguous(config.board.basket_of_slot)
 	local baskets = basket_count(config.board.basket_of_slot)
 	fit_per_basket(config.board, "weights", baskets, 1)
 	fit_per_basket(config.board, "scores", baskets, 0)
@@ -162,21 +207,35 @@ local function load()
 	return config
 end
 
-local cached
+local DEFAULT_PRESET = "classic"
 
---- The merged, clamped configuration. Loaded once, then handed out as is.
+local cached = {}
+
+--- The merged, clamped configuration for one board preset.
+-- The preset overrides shape and odds; everything visual comes from config/board.lua.
+---@param preset_id string|nil defaults to the first board in the brief
 ---@return table
-function M.get()
-	cached = cached or load()
-	return cached
+function M.get(preset_id)
+	preset_id = preset_id or DEFAULT_PRESET
+	cached[preset_id] = cached[preset_id] or load(preset_id)
+	return cached[preset_id]
 end
 
---- Drops the cached configuration so the next `get` reloads it. For tests and hot reload.
+--- Every board the menu can offer.
+---@return table[] { id, label }
+function M.presets()
+	return require("config.presets")
+end
+
+--- Drops the cache so the next `get` reloads. For tests and hot reload.
 function M.reload()
-	cached = nil
-	package.loaded["config.board"] = nil
-	package.loaded["config.currency"] = nil
-	package.loaded["config.drop"] = nil
+	cached = {}
+	for _, name in ipairs({ "config.board", "config.currency", "config.drop", "config.presets" }) do
+		package.loaded[name] = nil
+	end
+	for _, preset in ipairs({ "classic", "left_heavy", "wide" }) do
+		package.loaded["config.presets." .. preset] = nil
+	end
 end
 
 return M

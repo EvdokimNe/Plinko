@@ -40,6 +40,16 @@ nodes {
   inherit_alpha: true
 }
 nodes {
+  size {
+    x: 0.0
+    y: 0.0
+  }
+  type: TYPE_BOX
+  id: "presets"
+  layer: "graphics"
+  inherit_alpha: true
+}
+nodes {
   position {
     x: 360.0
     y: 560.0
@@ -54,9 +64,10 @@ nodes {
   }
   type: TYPE_BOX
   texture: "ui/btn_green_normal"
-  id: "play"
+  id: "preset_template"
   layer: "graphics"
   inherit_alpha: true
+  enabled: false
 }
 nodes {
   position {
@@ -73,8 +84,8 @@ nodes {
   type: TYPE_TEXT
   text: "PLAY"
   font: "default"
-  id: "play_label"
-  parent: "play"
+  id: "preset_label"
+  parent: "preset_template"
   layer: "text"
   inherit_alpha: true
 }

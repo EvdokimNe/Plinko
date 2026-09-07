@@ -83,6 +83,48 @@ function M.ball_position(state, positions, row)
 	return geometry.ball(state.geometry, row, positions[row + 1])
 end
 
+--- Centre of one slot, for the view.
+---@param state table
+---@param slot number
+---@return number x
+---@return number y
+function M.slot_position_of(state, slot)
+	return geometry.slot(state.geometry, slot)
+end
+
+--- Baskets as drawn: contiguous runs of slots owned by the same basket become one cell.
+-- A basket whose slots are not adjacent yields several cells; the config reports that case,
+-- since one wide cell there would misrepresent where balls land.
+---@param state table
+---@return table[] { basket, x, width, score, first_slot, last_slot }
+function M.basket_cells(state)
+	local step = state.geometry.step
+	local cells = {}
+	local current
+
+	for slot, basket in ipairs(state.config.basket_of_slot) do
+		local x = geometry.slot(state.geometry, slot)
+
+		if current and current.basket == basket and current.last_slot == slot - 1 then
+			current.last_slot = slot
+			current.width = current.width + step
+			current.x = current.x + step / 2
+		else
+			current = {
+				basket = basket,
+				x = x,
+				width = step,
+				score = state.config.scores[basket],
+				first_slot = slot,
+				last_slot = slot,
+			}
+			cells[#cells + 1] = current
+		end
+	end
+
+	return cells
+end
+
 --- Paths reaching each basket: the weights that reproduce the pyramid's own distribution.
 -- A basket owning several slots gets the sum of their path counts.
 ---@param state table

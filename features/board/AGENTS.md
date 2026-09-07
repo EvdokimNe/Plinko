@@ -55,6 +55,17 @@ stats.totals(state)               -- drops, points
 `stats` counts landings, never launches, and computes shares without formatting them —
 rendering belongs to the debug layer.
 
+## Presets
+
+`config/board.lua` holds what every board shares — `view`, `fall`, `path`. `config/presets/*.lua`
+override only shape and odds: `rows`, `basket_of_slot`, `weights`, `scores`. `config.get(id)`
+merges them and caches per preset; `config.presets()` is the list the menu builds buttons from.
+
+A basket may own several **adjacent** slots. `board.basket_cells(state)` merges contiguous runs
+into one wide cell, so a wide basket draws as one cell with one label rather than four identical
+ones. Slots of one basket that are not adjacent stay separate cells and the config reports it —
+drawing one cell across a gap would misrepresent where balls land.
+
 ## Invariants
 
 - The score is earned inside `drop`, before anything is animated. Closing the screen mid-fall

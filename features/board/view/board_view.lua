@@ -40,20 +40,20 @@ function M.build(state, view_config)
 		pins[index] = pin
 	end
 
+	-- One node per drawn cell, not per slot: a basket spanning several slots is one wide cell.
 	local baskets, labels = {}, {}
-	local slots = board.slot_positions(state)
-	local step = state.geometry.step
+	local _, slot_y = board.slot_position_of(state, 1)
 
-	for _, slot in ipairs(slots) do
+	for index, spec in ipairs(board.basket_cells(state)) do
 		local cell, cloned = clone_into(basket_template, baskets_parent)
-		gui.set_position(cell, vmath.vector3(slot.x, slot.y - view_config.basket_height / 2, 0))
-		gui.set_size(cell, vmath.vector3(step - 2, view_config.basket_height, 0))
+		gui.set_position(cell, vmath.vector3(spec.x, slot_y - view_config.basket_height / 2, 0))
+		gui.set_size(cell, vmath.vector3(spec.width - 2, view_config.basket_height, 0))
 
 		local label = cloned[gui.get_id(gui.get_node("basket_label"))]
-		gui.set_text(label, tostring(state.config.scores[slot.basket]))
+		gui.set_text(label, tostring(spec.score))
 
-		baskets[slot.slot] = cell
-		labels[slot.slot] = label
+		baskets[index] = cell
+		labels[index] = label
 	end
 
 	return { pins = pins, glows = glows, baskets = baskets, labels = labels }
