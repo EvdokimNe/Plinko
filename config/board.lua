@@ -26,8 +26,9 @@ return {
 		-- Height of a basket cell, in pixels.
 		basket_height = 70,
 
-		-- How many ball views to create up front. The pool grows past this if needed.
-		ball_pool_size = 12,
+		-- How many ball views to build at load. The pool makes more on demand and keeps them,
+		-- so this only trades a little work at open against a little work on the first drops.
+		ball_prewarm = 5,
 	},
 
 	path = {

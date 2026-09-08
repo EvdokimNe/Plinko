@@ -10,7 +10,75 @@ textures {
 nodes {
   position {
     x: 360.0
-    y: 600.0
+    y: 640.0
+  }
+  size {
+    x: 1440.0
+    y: 2560.0
+  }
+  color {
+    x: 0.16
+    y: 0.55
+    z: 0.85
+  }
+  type: TYPE_BOX
+  id: "background"
+  adjust_mode: ADJUST_MODE_ZOOM
+  layer: "graphics"
+  inherit_alpha: true
+}
+nodes {
+  position {
+    x: 360.0
+    y: 640.0
+  }
+  type: TYPE_TEMPLATE
+  id: "window"
+  inherit_alpha: true
+  template: "/shared/ui/window.gui"
+}
+nodes {
+  type: TYPE_BOX
+  id: "window/root"
+  parent: "window"
+  template_node_child: true
+}
+nodes {
+  type: TYPE_BOX
+  id: "window/header"
+  parent: "window/root"
+  template_node_child: true
+}
+nodes {
+  type: TYPE_TEXT
+  id: "window/title"
+  parent: "window/header"
+  template_node_child: true
+}
+nodes {
+  type: TYPE_BOX
+  id: "window/content"
+  parent: "window/root"
+  template_node_child: true
+}
+nodes {
+  position {
+    x: 360.0
+    y: 595.0
+  }
+  size {
+    x: 0.0
+    y: 0.0
+  }
+  type: TYPE_BOX
+  id: "content"
+  layer: "graphics"
+  inherit_alpha: true
+}
+nodes {
+  position {
+    x: 0.0
+    y: 60.0
   }
   size {
     x: 560.0
@@ -19,6 +87,7 @@ nodes {
   type: TYPE_BOX
   texture: "ui/body"
   id: "board"
+  parent: "content"
   layer: "graphics"
   inherit_alpha: true
 }
@@ -141,170 +210,164 @@ nodes {
 }
 nodes {
   position {
-    x: 360.0
-    y: 1210.0
+    x: 0.0
+    y: 500.0
   }
   size {
     x: 600.0
     y: 50.0
   }
+  color {
+    x: 0.10
+    y: 0.16
+    z: 0.10
+  }
   type: TYPE_TEXT
   text: "SCORE 0"
   font: "default"
   id: "score"
+  parent: "content"
   layer: "text"
   inherit_alpha: true
 }
 nodes {
   position {
-    x: 200.0
-    y: 1150.0
+    x: -170.0
+    y: 430.0
   }
   size {
     x: 300.0
     y: 40.0
+  }
+  color {
+    x: 0.10
+    y: 0.16
+    z: 0.10
   }
   type: TYPE_TEXT
   text: "BALLS 0"
   font: "default"
   id: "balls_label"
+  parent: "content"
   layer: "text"
   inherit_alpha: true
 }
 nodes {
   position {
-    x: 520.0
-    y: 1150.0
+    x: 170.0
+    y: 430.0
   }
   size {
     x: 300.0
     y: 40.0
   }
+  color {
+    x: 0.10
+    y: 0.16
+    z: 0.10
+  }
   type: TYPE_TEXT
   text: "NEXT --"
   font: "default"
   id: "timer_label"
+  parent: "content"
   layer: "text"
   inherit_alpha: true
+}
+nodes {
+  position {
+    x: -180.0
+    y: -460.0
+  }
+  type: TYPE_TEMPLATE
+  id: "drop_one"
+  parent: "content"
+  inherit_alpha: true
+  template: "/shared/ui/button.gui"
+}
+nodes {
+  type: TYPE_BOX
+  id: "drop_one/root"
+  parent: "drop_one"
+  template_node_child: true
+}
+nodes {
+  type: TYPE_TEXT
+  text: "DROP"
+  id: "drop_one/label"
+  parent: "drop_one/root"
+  overridden_fields: 8
+  template_node_child: true
+}
+nodes {
+  position {
+    x: 0.0
+    y: -460.0
+  }
+  type: TYPE_TEMPLATE
+  id: "drop_many"
+  parent: "content"
+  inherit_alpha: true
+  template: "/shared/ui/button.gui"
+}
+nodes {
+  type: TYPE_BOX
+  id: "drop_many/root"
+  parent: "drop_many"
+  template_node_child: true
+}
+nodes {
+  type: TYPE_TEXT
+  text: "DROP x5"
+  id: "drop_many/label"
+  parent: "drop_many/root"
+  overridden_fields: 8
+  template_node_child: true
 }
 nodes {
   position {
     x: 180.0
-    y: 140.0
+    y: -460.0
   }
-  size {
-    x: 86.0
-    y: 84.0
-  }
-  type: TYPE_BOX
-  texture: "ui/btn_green_normal"
-  id: "drop_one"
-  layer: "graphics"
-  inherit_alpha: true
-}
-nodes {
-  position {
-    y: -58.0
-  }
-  size {
-    x: 200.0
-    y: 40.0
-  }
-  scale {
-    x: 0.8
-    y: 0.8
-  }
-  type: TYPE_TEXT
-  text: "DROP"
-  font: "default"
-  id: "drop_one_label"
-  parent: "drop_one"
-  layer: "text"
-  inherit_alpha: true
-}
-nodes {
-  position {
-    x: 360.0
-    y: 140.0
-  }
-  size {
-    x: 86.0
-    y: 84.0
-  }
-  type: TYPE_BOX
-  texture: "ui/btn_green_normal"
-  id: "drop_many"
-  layer: "graphics"
-  inherit_alpha: true
-}
-nodes {
-  position {
-    y: -58.0
-  }
-  size {
-    x: 200.0
-    y: 40.0
-  }
-  scale {
-    x: 0.8
-    y: 0.8
-  }
-  type: TYPE_TEXT
-  text: "DROP x5"
-  font: "default"
-  id: "drop_many_label"
-  parent: "drop_many"
-  layer: "text"
-  inherit_alpha: true
-}
-nodes {
-  position {
-    x: 540.0
-    y: 140.0
-  }
-  size {
-    x: 86.0
-    y: 84.0
-  }
-  type: TYPE_BOX
-  texture: "ui/btn_green_normal"
+  type: TYPE_TEMPLATE
   id: "grant"
-  layer: "graphics"
+  parent: "content"
   inherit_alpha: true
+  template: "/shared/ui/button.gui"
 }
 nodes {
-  position {
-    y: -58.0
-  }
-  size {
-    x: 200.0
-    y: 40.0
-  }
-  scale {
-    x: 0.8
-    y: 0.8
-  }
+  type: TYPE_BOX
+  id: "grant/root"
+  parent: "grant"
+  template_node_child: true
+}
+nodes {
   type: TYPE_TEXT
   text: "+5 BALLS"
-  font: "default"
-  id: "grant_label"
-  parent: "grant"
-  layer: "text"
-  inherit_alpha: true
+  id: "grant/label"
+  parent: "grant/root"
+  overridden_fields: 8
+  template_node_child: true
 }
 nodes {
   position {
-    x: 80.0
-    y: 1210.0
+    x: -250.0
+    y: 500.0
   }
   size {
     x: 120.0
     y: 50.0
   }
+  color {
+    x: 0.10
+    y: 0.16
+    z: 0.10
+  }
   type: TYPE_TEXT
   text: "< BACK"
   font: "default"
   id: "back"
+  parent: "content"
   layer: "text"
   inherit_alpha: true
 }

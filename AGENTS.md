@@ -7,6 +7,12 @@ Everything written to disk is English. Conversation with the developer is Russia
 - Work starts with a plan in `plans/NNN-*.md`, then an **explicit start from the developer —
   every time**. A finished plan is not a start signal. `plans/` is gitignored and never ships.
 - Commit only when the developer asks. No `Co-Authored-By` trailers.
+- **A commit message is short.** Subject one line, 72 characters at most. Body five lines at
+  most, and only for what the diff cannot say: a decision and the alternative it beat, a
+  constraint that forced the shape, a trap the next reader would step into. Not the feature
+  retold, not the file list, not the test count. Reasoning that needs more room belongs in
+  `AGENTS.md` or `PITFALLS.md`, where someone will find it — nobody greps `git log` for an
+  invariant. If five lines are genuinely not enough, it is usually two commits.
 - A document that was read is not retold back. Say only what is not in it: what collides with
   what exists, what is missing, what has to be decided.
 
@@ -14,34 +20,50 @@ Everything written to disk is English. Conversation with the developer is Russia
 Features, not file types. Everything one feature needs sits in one folder.
 
 ```
-main/                  bootstrap collection, entry script, Monarch screen registration
+main/                  bootstrap collection and script; Druid's default style is set here
+    screens/           one .go per Monarch screen: collectionproxy + screen_proxy.script
+    services/          scripts that must outlive every screen (currency)
+    ui/                button_style.lua — the Druid default style
+screens/<name>/        a Monarch screen: .collection, .go, .gui, .gui_script
+config/                init.lua (clamped `get`), board.lua, currency.lua, drop.lua, presets/
 features/<name>/       one feature, self-contained
     logic/             pure Lua — no Defold API
+    view/              the Defold half: modules that call gui.*, driven by a screen's gui_script
     tests/             deftest suites for this feature's logic
-    <name>.collection  scene, game objects, scripts, gui — the Defold side
+    <name>.lua         the feature's public module, when it has one
     AGENTS.md          what it is, public API, invariants, pitfalls
-shared/                pure Lua used by two or more features
+shared/ui/             prefab scenes and their modules, shared by screens (window, button)
 assets/ui/shared/      art reused across screens (buttons)
 assets/ui/game/        art of the play area (board, balls)
+input/                 game.input_binding
 docs/                  DEPENDENCIES.md, and lib/*.md — notes on each library
 test/                  deftest runner collection and the explicit suite list
+tools/                 test.ps1 and the editor script that runs it
 ```
 
+A scene is not a feature's to own. A Monarch screen is one collection composing several features
+at once — the game screen drives board, currency and debug — so `.collection`, `.gui` and
+`.gui_script` live in `screens/<name>/`, and the feature keeps only the modules that scene calls.
+
 Art lives in `assets/`, not inside a feature: one atlas serves the whole UI, so the sources it
-packs belong together. Code and scenes stay in the feature.
+packs belong together.
 
 - A feature is a folder, and its folder is its boundary. One feature never reaches into
   another's `logic/`; it goes through the other feature's public module or a message.
 - **Rule of the second use:** write it inside the feature the first time, move it to `shared/`
   the second time. Do not generalise on the first occurrence.
-- Defold resolves resources by absolute project path (`/features/board/board.collection`), so
-  moving a folder means updating every path that points into it. Move deliberately.
+- Defold resolves resources by absolute project path (`/screens/game/game.gui`), so moving a
+  folder means updating every path that points into it. Move deliberately.
 
 ## The rule everything else serves
 Game logic lives in `features/<name>/logic/*.lua` and calls **no Defold API** — no `go.*`, no
 `msg.*`, no `gui.*`, no `hash`, no `vmath` where a plain number works. A `.script` is a thin
 shell: take input, call the logic, render the result. If logic cannot be tested without
 starting the engine, it is in the wrong file.
+
+`view/` is where that rendering is allowed to live: it may call `gui.*`, it takes positions
+already computed by `logic/`, and it decides nothing. It is untested by design — everything
+worth asserting sits one layer below it.
 
 ## State
 `shared_state = 1` is on: one Lua context for the whole game, and `require` caches a module in
@@ -71,8 +93,9 @@ can be replayed and a test cannot flake.
   position teleports the collision shape and desyncs it from the simulation.
 - `hash()` results are constants — compute them once at file scope, never inside `update` or
   `on_input`.
-- Tuning numbers (pin spacing, slot multipliers, restitution, gravity) live in one config
-  module per feature. No magic numbers in scripts.
+- Tuning numbers (pin spacing, slot multipliers, fall speed, bounce) live in `config/`, one
+  file per domain, with the allowed ranges declared once in `config/init.lua`. No magic
+  numbers in scripts.
 
 ## Druid
 - `druid.new(self)` in `init`, and forward **all** of `update`, `on_input`, `on_message`,
@@ -120,7 +143,9 @@ that bites at several call sites is written once in `PITFALLS.md`, not re-explai
 ## Files
 Defold's `.collection`, `.go`, `.atlas`, `.input_binding` and `game.project` are plain text —
 edit them directly, do not ask the developer to click in the editor. `.gui` is text too but
-verbose and easy to corrupt: generate it carefully and say exactly what changed.
+verbose and easy to corrupt: generate it carefully and say exactly what changed. A template
+instance is writable by hand too, but only by mirroring the editor's output exactly — see
+`PITFALLS.md`.
 
 ## Before writing a service, look for one
 A service-shaped feature — currency, saving, logging, screen management, tweening — probably

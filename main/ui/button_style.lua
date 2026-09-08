@@ -11,7 +11,7 @@ local NORMAL_HASH = hash(NORMAL)
 
 --- Dimming used for a button that cannot be pressed right now, e.g. the multi-drop below the
 --- balls it costs.
-local DISABLED_TINT = vmath.vector4(0.55, 0.55, 0.55, 1)
+local DISABLED_TINT = vmath.vector4(0.42, 0.42, 0.42, 1)
 local ENABLED_TINT = vmath.vector4(1)
 
 local M = {}

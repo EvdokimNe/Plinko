@@ -1,0 +1,79 @@
+fonts {
+  name: "default"
+  font: "/builtins/fonts/default.font"
+}
+nodes {
+  size {
+    x: 640.0
+    y: 1180.0
+  }
+  color {
+    x: 0.98
+    y: 0.95
+    z: 0.86
+  }
+  type: TYPE_BOX
+  id: "root"
+  adjust_mode: ADJUST_MODE_FIT
+  layer: "graphics"
+  inherit_alpha: true
+}
+nodes {
+  position {
+    y: 545.0
+  }
+  size {
+    x: 640.0
+    y: 90.0
+  }
+  color {
+    x: 0.72
+    y: 0.42
+    z: 0.85
+  }
+  type: TYPE_BOX
+  id: "header"
+  parent: "root"
+  layer: "graphics"
+  inherit_alpha: true
+}
+nodes {
+  size {
+    x: 600.0
+    y: 60.0
+  }
+  color {
+    x: 1.0
+    y: 1.0
+    z: 1.0
+  }
+  type: TYPE_TEXT
+  text: "TITLE"
+  font: "default"
+  id: "title"
+  parent: "header"
+  layer: "text"
+  inherit_alpha: true
+}
+nodes {
+  position {
+    y: -45.0
+  }
+  size {
+    x: 0.0
+    y: 0.0
+  }
+  type: TYPE_BOX
+  id: "content"
+  parent: "root"
+  layer: "graphics"
+  inherit_alpha: true
+}
+layers {
+  name: "graphics"
+}
+layers {
+  name: "text"
+}
+material: "/builtins/materials/gui.material"
+adjust_reference: ADJUST_REFERENCE_PARENT

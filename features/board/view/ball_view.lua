@@ -21,7 +21,7 @@ function M.new(view_config)
 		gui.set_scale(node, scale)
 		gui.set_enabled(node, false)
 		return node
-	end, view_config.ball_pool_size)
+	end, view_config.ball_prewarm)
 end
 
 --- Takes a ball and shows it at a position.
