@@ -49,6 +49,28 @@ function M.new(rows, basket_of_slot)
 	}
 end
 
+--- Paths reaching each basket: the weights that reproduce the pyramid's own distribution.
+--- A basket owning several slots gets the sum of its slots' path counts, which `M.new` already
+--- accumulated. Used by the debug readout and by the editor command that writes them into a
+--- preset, so both quote the same numbers the game itself draws with.
+---@param state table from `M.new`
+---@return number[] one weight per basket, in basket order
+function M.natural_weights(state)
+	local highest = 0
+	for basket in pairs(state.slots_of_basket) do
+		if basket > highest then
+			highest = basket
+		end
+	end
+
+	local weights = {}
+	for basket = 1, highest do
+		local group = state.slots_of_basket[basket]
+		weights[basket] = group and group.total or 0
+	end
+	return weights
+end
+
 --- Picks which slot of `basket` the ball enters.
 -- Not a uniform choice: a central slot is reachable by many more paths than an edge one, so a
 -- basket spanning several slots catches balls the way a real board does.

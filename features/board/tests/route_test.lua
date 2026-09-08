@@ -112,6 +112,24 @@ return function()
 			end
 		end)
 
+		it("reports the pyramid's own weights, one per basket", function()
+			-- Nine rows: the binomial row 1, 9, 36, 84, 126, 126, 84, 36, 9, 1.
+			local one_each = route.new(9, { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 })
+			local weights = route.natural_weights(one_each)
+			assert(#weights == 10)
+			assert(weights[1] == 1 and weights[10] == 1)
+			assert(weights[5] == 126 and weights[6] == 126)
+		end)
+
+		it("sums the slots a wide basket owns", function()
+			-- Five rows: 1, 5, 10, 10, 5, 1. The middle basket owns slots 2..5.
+			local wide = route.new(5, { 1, 2, 2, 2, 2, 3 })
+			local weights = route.natural_weights(wide)
+			assert(#weights == 3)
+			assert(weights[1] == 1 and weights[3] == 1)
+			assert(weights[2] == 5 + 10 + 10 + 5)
+		end)
+
 		it("only ever picks slots that belong to the basket asked for", function()
 			-- 10 slots, 8 baskets: the outer baskets own two slots each.
 			local map = { 1, 1, 2, 3, 4, 5, 6, 7, 8, 8 }
