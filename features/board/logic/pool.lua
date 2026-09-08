@@ -3,13 +3,13 @@
 -- That keeps it testable without a scene, and lets the same pool serve any repeated view.
 local M = {}
 
---- Builds the pool and fills it.
+--- Builds the pool and prewarms it.
 ---@param create fun(): any called for each item, up front and whenever the pool runs dry
----@param size number how many to create immediately
+---@param prewarm number how many to create immediately; the rest are made on demand
 ---@return table
-function M.new(create, size)
+function M.new(create, prewarm)
 	local state = { create = create, free = {}, used = {}, in_use = 0, made = 0 }
-	for _ = 1, size do
+	for _ = 1, prewarm do
 		state.made = state.made + 1
 		state.free[#state.free + 1] = create()
 	end

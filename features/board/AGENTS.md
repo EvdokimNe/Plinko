@@ -98,7 +98,7 @@ laid out by hand: their positions come from the row count, so a hand-placed scen
 board_view.build(state, view_config)   -- pins, glows, baskets, labels
 ball_view.new(view_config)             -- pooled ball nodes
 ball_view.take(state, x, y) / give(state, node) / give_all(state)
-pool.new(create, size) / take / give / give_all / in_use / made
+pool.new(create, prewarm) / take / give / give_all / in_use / made
 ```
 
 Every visual number lives in `config/board.lua` under `view`. Nothing about the look is written

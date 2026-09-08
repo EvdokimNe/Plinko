@@ -12,6 +12,7 @@ local RANGES = {
 	{ "board.fall.row_pace", 0.2, 3 },
 	{ "board.fall.escape", 1, 4 },
 	{ "board.fall.hop", 0, 60 },
+	{ "board.view.ball_prewarm", 0, 100 },
 	{ "drop.queue_interval", 0.05, 5 },
 	{ "drop.multi_count", 2, 50 },
 }
@@ -195,6 +196,7 @@ local function load(preset_id)
 
 	config.board.rows = math.floor(config.board.rows)
 	config.drop.multi_count = math.floor(config.drop.multi_count)
+	config.board.view.ball_prewarm = math.floor(config.board.view.ball_prewarm)
 
 	fix_slot_map(config.board)
 	check_contiguous(config.board.basket_of_slot)

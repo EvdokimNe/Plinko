@@ -1,35 +1,30 @@
 local config = require("config.init")
 local currency = require("features.currency.currency")
+local button = require("shared.ui.button")
 local druid = require("druid.druid")
 local monarch = require("monarch.monarch")
 
 local BALLS = "balls"
 
-local FIRST_BUTTON_Y = 680
-local BUTTON_SPACING = 190
+local FIRST_BUTTON_Y = 40
+local BUTTON_SPACING = 130
 
 local function show_balls(self, balance)
 	gui.set_text(self.balls, "Balls: " .. balance)
 end
 
---- One button per preset, cloned from a hidden template. Adding a board is a config entry.
+--- One button per preset. Adding a board is a config entry and nothing else.
 local function build_buttons(self)
-	local template = gui.get_node("preset_template")
-	local parent = gui.get_node("presets")
-	local label_id = gui.get_id(gui.get_node("preset_label"))
-
 	for index, preset in ipairs(config.presets()) do
-		local cloned = gui.clone_tree(template)
-		local button = cloned[gui.get_id(template)]
-
-		gui.set_parent(button, parent)
-		gui.set_enabled(button, true)
-		gui.set_position(button, vmath.vector3(360, FIRST_BUTTON_Y - (index - 1) * BUTTON_SPACING, 0))
-		gui.set_text(cloned[label_id], preset.label)
-
-		self.druid:new_button(button, function()
-			monarch.show(hash("game"), nil, { preset = preset.id })
-		end)
+		button.spawn(self.druid, {
+			template = "preset_button",
+			parent = "presets",
+			text = preset.label,
+			y = FIRST_BUTTON_Y - (index - 1) * BUTTON_SPACING,
+			callback = function()
+				monarch.show(hash("game"), nil, { preset = preset.id })
+			end,
+		})
 	end
 end
 

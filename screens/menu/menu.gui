@@ -10,7 +10,42 @@ textures {
 nodes {
   position {
     x: 360.0
-    y: 900.0
+    y: 640.0
+  }
+  size {
+    x: 1440.0
+    y: 2560.0
+  }
+  color {
+    x: 0.16
+    y: 0.55
+    z: 0.85
+  }
+  type: TYPE_BOX
+  id: "background"
+  adjust_mode: ADJUST_MODE_ZOOM
+  layer: "graphics"
+  inherit_alpha: true
+}
+nodes {
+  position {
+    x: 360.0
+    y: 640.0
+  }
+  size {
+    x: 0.0
+    y: 0.0
+  }
+  type: TYPE_BOX
+  id: "root"
+  adjust_mode: ADJUST_MODE_FIT
+  layer: "graphics"
+  inherit_alpha: true
+}
+nodes {
+  position {
+    x: 0.0
+    y: 260.0
   }
   size {
     x: 600.0
@@ -20,13 +55,14 @@ nodes {
   text: "PLINKO"
   font: "default"
   id: "title"
+  parent: "root"
   layer: "text"
   inherit_alpha: true
 }
 nodes {
   position {
-    x: 360.0
-    y: 780.0
+    x: 0.0
+    y: 180.0
   }
   size {
     x: 600.0
@@ -36,6 +72,7 @@ nodes {
   text: "Balls: -"
   font: "default"
   id: "balls"
+  parent: "root"
   layer: "text"
   inherit_alpha: true
 }
@@ -46,48 +83,39 @@ nodes {
   }
   type: TYPE_BOX
   id: "presets"
+  parent: "root"
   layer: "graphics"
   inherit_alpha: true
 }
 nodes {
-  position {
-    x: 360.0
-    y: 560.0
-  }
   size {
-    x: 86.0
-    y: 84.0
-  }
-  scale {
-    x: 1.6
-    y: 1.6
+    x: 0.0
+    y: 0.0
   }
   type: TYPE_BOX
-  texture: "ui/btn_green_normal"
-  id: "preset_template"
+  id: "prefabs"
   layer: "graphics"
   inherit_alpha: true
   enabled: false
 }
 nodes {
-  position {
-    y: -70.0
-  }
-  size {
-    x: 300.0
-    y: 60.0
-  }
-  scale {
-    x: 0.6
-    y: 0.6
-  }
-  type: TYPE_TEXT
-  text: "PLAY"
-  font: "default"
-  id: "preset_label"
-  parent: "preset_template"
-  layer: "text"
+  type: TYPE_TEMPLATE
+  id: "preset_button"
+  parent: "prefabs"
   inherit_alpha: true
+  template: "/shared/ui/button.gui"
+}
+nodes {
+  type: TYPE_BOX
+  id: "preset_button/root"
+  parent: "preset_button"
+  template_node_child: true
+}
+nodes {
+  type: TYPE_TEXT
+  id: "preset_button/label"
+  parent: "preset_button/root"
+  template_node_child: true
 }
 layers {
   name: "graphics"

@@ -37,6 +37,17 @@ return function()
 			assert(config.get("classic").board.weights[1] == classic.board.weights[1])
 		end)
 
+		it("gives the narrow right basket the best odds on wide_basket_right", function()
+			local board = config.get("wide_basket_right").board
+			local best = 1
+			for basket, weight in ipairs(board.weights) do
+				if weight > board.weights[best] then
+					best = basket
+				end
+			end
+			assert(best == board.baskets, "the heaviest basket is not the rightmost one")
+		end)
+
 		it("fails loudly on an unknown preset", function()
 			assert(pcall(config.get, "no_such_board") == false)
 		end)

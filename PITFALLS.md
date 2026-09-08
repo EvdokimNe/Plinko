@@ -50,6 +50,22 @@ unsubscribed and the subscription survives the scene.
 **Fix:** require with a literal string. Build lists of modules as lists of already-required
 values, not lists of names.
 
+### A hand-written GUI template instance lands in the corner at default size
+**Symptom:** a `type: TYPE_TEMPLATE` node written into a `.gui` by hand renders its children at
+the origin with the template's own sizes, ignoring what the instance says.
+**Cause:** the instance is flattened at build time — the engine only ever sees the children, each
+named `instance_id/child_id`. Every child of the template scene must be listed in the consuming
+file as its own `nodes` entry with that prefixed id, `template_node_child: true` and a `parent`
+chain rooted at the instance id. A missing or misparented child inherits nothing, and the
+instance has no runtime node of its own to fall back on.
+**Fix:** mirror the editor's own output. Only overridden properties are written on a child, with
+their protobuf field numbers in `overridden_fields` (position 1, scale 3, size 4, color 5,
+text 8, pivot 14); everything else is left out and comes from the template scene. Give the
+template a single root node so a script can move the whole instance.
+**Also:** a scene node cannot be authored inside an instance — the editor only overrides what the
+template already has. A screen that wants its content inside a window keeps that content as its
+own node and parents it in at runtime.
+
 ### `--platform js-web` is rejected
 **Symptom:** `SEVERE Platform js-web not supported`, exit code 1.
 **Cause:** the asm.js target is gone. HTML5 is `wasm-web` (architectures `wasm-web` and
@@ -91,6 +107,26 @@ collection proxy.
 ### A reopened screen remembers the previous session
 **Cause:** its Lua modules are still loaded and still hold state.
 **Fix:** explicit reset on screen load.
+
+### The screen goes black for a moment between two screens
+**Symptom:** a flash of the window's clear colour while navigating.
+**Cause:** `show()` starts `show_in` for the new screen and `show_out` for the old one as two
+coroutines. `show_in` yields waiting for `async_load`, so `show_out` runs first and unloads the
+outgoing screen while the incoming collection is still loading. Nothing is drawn in between.
+**Fix:** set the clear colour in `game.project` to whatever the screens sit on, so those frames
+are indistinguishable — ours is the same blue as the `background` node in both scenes, and the
+two have to be changed together. Cover the gap with motion instead by registering a
+`TRANSITION_SHOW_OUT` on the outgoing screen: Monarch waits for it, so the old screen stays up
+while the new one loads.
+
+### `preload` on a screen proxy is not a cache — the screen stops resetting
+**Symptom:** a screen keeps the previous visit's board, score or subscriptions; a preset chosen
+in a menu is ignored on the second entry.
+**Cause:** with the proxy's `preload` property set, Monarch's `unload` posts `disable` instead of
+`unload`. The collection stays alive, so `final()` never runs and `init()` never runs again — the
+screen is only hidden and shown.
+**Fix:** leave `preload` off for any screen that builds itself from data in `init()`. It suits a
+screen that is genuinely static.
 
 ## deftest
 
