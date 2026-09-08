@@ -1,7 +1,8 @@
 # Plinko — project rules
 
 Defold 1.13.1, target HTML5. UI: Druid. Screens: Monarch. Tests: deftest.
-Everything written to disk is English. Conversation with the developer is Russian.
+Everything written to disk is English, with one exception: `README.md` is Russian, because it is
+what the reviewer reads. Conversation with the developer is Russian.
 
 ## Process
 - Work starts with a plan in `plans/NNN-*.md`, then an **explicit start from the developer —
