@@ -5,6 +5,7 @@ A live readout of what the board is doing, on Tab.
 ## Public API
 
 ```lua
+debug_overlay.is_available()     -- false in a release build, where the engine draws no debug text
 debug_overlay.new({ x, y })      -- top-left corner in screen pixels
 debug_overlay.toggle(state)      -- -> visible
 debug_overlay.is_visible(state)
@@ -21,6 +22,9 @@ report.weights_line(weights)              -- a config line ready to paste
 - `draw_debug_text` renders one frame and forgets, so `draw` is called every frame while
   visible and does nothing while hidden. The spec's `render:draw_text` is this message under its
   current name; the built-in render script handles it, no custom one is needed.
+- **The engine draws it, and only in a debug build.** A release variant compiles that path out
+  and silently ignores the message, so the whole readout — and the clear-score control that
+  belongs to it — is wired only when `is_available()` says yes.
 - `report` builds strings and nothing else, so the table is tested without a screen.
 - Columns are padded to fixed widths — the debug font is monospaced, and a test checks that a
   four-digit count does not shift the header.

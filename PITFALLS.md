@@ -66,6 +66,15 @@ template a single root node so a script can move the whole instance.
 template already has. A screen that wants its content inside a window keeps that content as its
 own node and parents it in at runtime.
 
+### The debug readout draws nothing in a release build
+**Symptom:** in a bundled release the Tab handler clearly runs — state toggles, controls appear —
+but no text is drawn. The same code draws fine from the editor.
+**Cause:** `draw_debug_text` is rendered by the engine itself, and that path is compiled out of
+the release variant, which also drops logging. The message is accepted and ignored.
+**Fix:** treat the readout as a development tool and ask `sys.get_engine_info().is_debug` before
+wiring anything to it, so a release does not offer a panel it cannot draw. Bundle with
+`--variant debug` when the readout has to be seen outside the editor.
+
 ### `--platform js-web` is rejected
 **Symptom:** `SEVERE Platform js-web not supported`, exit code 1.
 **Cause:** the asm.js target is gone. HTML5 is `wasm-web` (architectures `wasm-web` and

@@ -11,6 +11,14 @@ local DRAW = hash("draw_debug_text")
 local LINE_HEIGHT = 18
 local COLOR = vmath.vector4(1, 1, 1, 1)
 
+--- Whether the readout can be shown at all. The engine draws `draw_debug_text` itself, and that
+--- path is compiled out of a release build, so a release would toggle a panel that never appears.
+--- A screen asks this before wiring anything to the readout.
+---@return boolean
+function M.is_available()
+	return sys.get_engine_info().is_debug
+end
+
 --- @param origin table { x, y } top-left corner in screen pixels
 ---@return table
 function M.new(origin)
