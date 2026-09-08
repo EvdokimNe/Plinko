@@ -94,8 +94,19 @@ Pins, glows, baskets and balls are **cloned from hidden template nodes** in `gam
 laid out by hand: their positions come from the row count, so a hand-placed scene would freeze
 `rows` and make the configurable board a lie.
 
+A glow rests hidden at zero scale and is only ever seen mid-strike: `pulse_glow` grows it to
+`pin_glow_scale` and shrinks it back. A board lit from below at all times says nothing; a flash
+says which pin was hit.
+
+`flash_basket` is addressed by **basket**, not by cell, and lights every cell that basket owns —
+a basket whose slots are not adjacent draws as more than one. Both it and `pulse_glow` return to
+values read from the scene's own template nodes at build, so the resting look stays in the editor
+and only the way back to it lives in code.
+
 ```lua
 board_view.build(state, view_config)   -- pins, glows, baskets, labels
+board_view.pulse_glow(nodes, index)    -- flashes one pin's glow; call from on_strike
+board_view.flash_basket(nodes, basket) -- marks the basket a ball landed in; call from on_land
 ball_view.new(view_config)             -- pooled ball nodes
 ball_view.take(state, x, y) / give(state, node) / give_all(state)
 pool.new(create, prewarm) / take / give / give_all / in_use / made

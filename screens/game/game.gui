@@ -351,6 +351,28 @@ nodes {
 }
 nodes {
   position {
+    x: 0.0
+    y: 460.0
+  }
+  size {
+    x: 300.0
+    y: 40.0
+  }
+  color {
+    x: 0.10
+    y: 0.16
+    z: 0.10
+  }
+  type: TYPE_TEXT
+  text: "CLEAR SCORE"
+  font: "default"
+  id: "clear_score"
+  parent: "content"
+  layer: "text"
+  inherit_alpha: true
+}
+nodes {
+  position {
     x: -250.0
     y: 500.0
   }

@@ -17,14 +17,28 @@ return {
 		-- so it starts at half size to leave a gap for the ball.
 		pin_scale = 0.5,
 
-		-- Scale of the glow underlay behind a pin, relative to the pin itself.
-		pin_glow_scale = 1.4,
+		-- Size of the flash under a pin at its peak, relative to the pin. The glow is invisible
+		-- until a ball strikes, then grows to this and shrinks back to nothing.
+		pin_glow_scale = 2.4,
+
+		-- Seconds the flash takes to grow, and to shrink again. Short and uneven reads as a
+		-- hit; make them equal and it reads as a pulse, longer and the board looks lit.
+		glow_grow = 0.06,
+		glow_fade = 0.14,
 
 		-- Scale applied to the ball sprite. The art is 40px.
 		ball_scale = 0.6,
 
 		-- Height of a basket cell, in pixels.
 		basket_height = 70,
+
+		-- The basket that just took a ball flashes white and its number jumps, then both ease
+		-- back over these seconds. One duration for the pair, so they finish together.
+		basket_flash = 0.25,
+
+		-- How far the number overshoots before it eases back, as a multiple of its own scale.
+		-- Above about 1.5 the number leaves its cell on a narrow basket.
+		basket_label_bump = 1.3,
 
 		-- How many ball views to build at load. The pool makes more on demand and keeps them,
 		-- so this only trades a little work at open against a little work on the first drops.

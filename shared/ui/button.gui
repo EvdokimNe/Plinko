@@ -37,7 +37,8 @@ nodes {
     z: 0.1
   }
   type: TYPE_TEXT
-  text: "BUTTON"
+  text: "BUTTON\n"
+  ""
   font: "default"
   id: "label"
   line_break: true

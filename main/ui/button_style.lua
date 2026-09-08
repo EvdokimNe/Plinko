@@ -8,6 +8,7 @@ local default_style = require("druid.styles.default.style")
 local NORMAL = "btn_green_normal"
 local PRESSED = "btn_green_push"
 local NORMAL_HASH = hash(NORMAL)
+local PRESSED_HASH = hash(PRESSED)
 
 --- Dimming used for a button that cannot be pressed right now, e.g. the multi-drop below the
 --- balls it costs.
@@ -29,26 +30,26 @@ function M.create()
 		button[key] = value
 	end
 
-	local animate_click = button.on_click
+	local animate_hover = button.on_hover
 	local animate_enabled = button.on_set_enabled
 
-	--- Swaps to the pressed sprite, then lets Druid's own scale animation run.
-	-- The style is global, so it also reaches buttons that are plain coloured boxes with no
-	-- texture at all. Calling play_flipbook on those is a runtime error, so the swap only
-	-- happens for nodes that actually show our button sprite.
-	button.on_click = function(self, node)
-		if gui.get_flipbook(node) == NORMAL_HASH then
-			gui.play_flipbook(node, PRESSED)
-			-- The sprite returns when the animation completes rather than on a timer, so a fast
-			-- tap cannot leave the button stuck in its pressed frame.
-			gui.animate(node, gui.PROP_SCALE, gui.get_scale(node), gui.EASING_LINEAR, 0.12, 0,
-				function()
-					gui.play_flipbook(node, NORMAL)
-				end)
+	--- Swaps the sprite for as long as the button is held. Druid reports hover for the touch
+	--- that is down on the node, and always reports it false again — on release, on a drag off
+	--- the node, and on an interrupted touch — so the pressed frame cannot get stuck.
+	-- The style is global and also reaches buttons that are a bare text node or an untextured
+	-- box, where the flipbook calls do not apply, hence both guards.
+	button.on_hover = function(self, node, state)
+		if gui.get_type(node) == gui.TYPE_BOX then
+			local current = gui.get_flipbook(node)
+			if state and current == NORMAL_HASH then
+				gui.play_flipbook(node, PRESSED)
+			elseif not state and current == PRESSED_HASH then
+				gui.play_flipbook(node, NORMAL)
+			end
 		end
 
-		if animate_click then
-			animate_click(self, node)
+		if animate_hover then
+			animate_hover(self, node, state)
 		end
 	end
 

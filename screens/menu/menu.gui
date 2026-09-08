@@ -77,6 +77,23 @@ nodes {
   inherit_alpha: true
 }
 nodes {
+  position {
+    x: 0.0
+    y: 120.0
+  }
+  size {
+    x: 600.0
+    y: 60.0
+  }
+  type: TYPE_TEXT
+  text: "Score: -"
+  font: "default"
+  id: "score"
+  parent: "root"
+  layer: "text"
+  inherit_alpha: true
+}
+nodes {
   size {
     x: 0.0
     y: 0.0

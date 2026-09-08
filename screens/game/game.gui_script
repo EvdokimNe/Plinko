@@ -19,8 +19,6 @@ local DEBUG = hash("debug")
 local BALLS = "balls"
 local SCORE = "score"
 
-local GLOW_PULSE_TIME = 0.12
-
 local function show_balls(self, balance)
 	gui.set_text(self.balls_label, "BALLS " .. balance)
 	self.drop_one:set_enabled(balance >= 1)
@@ -40,17 +38,6 @@ local function settle(self, ball)
 	end
 	currency.add(SCORE, drop.score)
 	stats.record(self.stats, drop.basket, drop.score)
-end
-
-local function pulse_pin(self, index)
-	local glow = self.nodes.glows[index]
-	if not glow then
-		return
-	end
-
-	local base = self.glow_scale
-	gui.set_scale(glow, base * 1.35)
-	gui.animate(glow, gui.PROP_SCALE, base, gui.EASING_OUTQUAD, GLOW_PULSE_TIME)
 end
 
 --- Spends the balls, draws every outcome and holds every win up front, then queues them.
@@ -84,7 +71,6 @@ function init(self)
 	local view = settings.board.view
 	self.drop_config = settings.drop
 	self.board = board.new(settings.board, view.width, view.height)
-	self.glow_scale = vmath.vector3(view.pin_scale * view.pin_glow_scale)
 
 	window.title("window", "PLINKO")
 	window.attach("window", gui.get_node("content"))
@@ -103,10 +89,11 @@ function init(self)
 	self.falling = falling.new(self.board.geometry, settings.board.fall, {
 		on_land = function(ball)
 			settle(self, ball)
+			board_view.flash_basket(self.nodes, ball.drop.basket)
 			ball_view.give(self.balls_pool, ball.node)
 		end,
 		on_strike = function(index)
-			pulse_pin(self, index)
+			board_view.pulse_glow(self.nodes, index)
 		end,
 	})
 
@@ -127,6 +114,17 @@ function init(self)
 	self.druid:new_button("back", function()
 		monarch.back()
 	end)
+
+	-- Plain text like BACK, not the green prefab: a nine-sliced button cannot shrink below the
+	-- sum of its borders, and a debug control has no business being the size of a drop button.
+	self.clear_node = gui.get_node("clear_score")
+	self.druid:new_button("clear_score", function()
+		local balance = currency.balance(SCORE)
+		if balance > 0 then
+			currency.spend(SCORE, balance)
+		end
+	end)
+	gui.set_enabled(self.clear_node, false)
 
 	self.on_balls = function(balance)
 		show_balls(self, balance)
@@ -186,7 +184,9 @@ end
 
 function on_input(self, action_id, action)
 	if action_id == DEBUG and action.pressed then
-		if debug_overlay.toggle(self.overlay) then
+		local visible = debug_overlay.toggle(self.overlay)
+		gui.set_enabled(self.clear_node, visible)
+		if visible then
 			-- Printed on open so the numbers are in the log too, where they can be copied.
 			print("DEBUG: " .. report.weights_line(board.natural_weights(self.board)))
 		end

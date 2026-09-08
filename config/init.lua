@@ -13,6 +13,10 @@ local RANGES = {
 	{ "board.fall.escape", 1, 4 },
 	{ "board.fall.hop", 0, 60 },
 	{ "board.view.ball_prewarm", 0, 100 },
+	{ "board.view.glow_grow", 0.01, 1 },
+	{ "board.view.glow_fade", 0.01, 1 },
+	{ "board.view.basket_flash", 0.01, 2 },
+	{ "board.view.basket_label_bump", 1, 3 },
 	{ "drop.queue_interval", 0.05, 5 },
 	{ "drop.multi_count", 2, 50 },
 }

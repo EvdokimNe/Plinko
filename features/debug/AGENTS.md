@@ -39,5 +39,9 @@ config behind the developer's back is worse than copying one line.
 
 - The readout is drawn at a fixed screen position, not anchored, so it assumes the 720x1280
   reference resolution.
-- No debug-only button panel: the grant button lives on the game screen itself, which the spec
-  asks for anyway.
+- The readout cannot hold a control. `draw_debug_text` paints glyphs for one frame and leaves no
+  node behind, so nothing in it can be picked, hovered or clicked. The clear-score button is
+  therefore an ordinary gui node owned by the game screen — a text control under the score,
+  shaped like BACK, shown while `is_visible` is true. A control that truly lived in the panel
+  would mean rebuilding the readout out of gui nodes. The grant button stays on screen at all
+  times, which the spec asks for anyway.

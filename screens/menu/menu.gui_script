@@ -5,12 +5,17 @@ local druid = require("druid.druid")
 local monarch = require("monarch.monarch")
 
 local BALLS = "balls"
+local SCORE = "score"
 
 local FIRST_BUTTON_Y = 40
 local BUTTON_SPACING = 130
 
 local function show_balls(self, balance)
 	gui.set_text(self.balls, "Balls: " .. balance)
+end
+
+local function show_score(self, balance)
+	gui.set_text(self.score, "Score: " .. balance)
 end
 
 --- One button per preset. Adding a board is a config entry and nothing else.
@@ -32,18 +37,26 @@ function init(self)
 	msg.post(".", "acquire_input_focus")
 	self.druid = druid.new(self)
 	self.balls = gui.get_node("balls")
+	self.score = gui.get_node("score")
 
 	build_buttons(self)
 
 	self.on_balls = function(balance)
 		show_balls(self, balance)
 	end
+	self.on_score = function(balance)
+		show_score(self, balance)
+	end
 	currency.on_change(BALLS, self.on_balls)
+	currency.on_change(SCORE, self.on_score)
+
 	show_balls(self, currency.balance(BALLS))
+	show_score(self, currency.balance(SCORE))
 end
 
 function final(self)
 	currency.off_change(BALLS, self.on_balls)
+	currency.off_change(SCORE, self.on_score)
 	self.druid:final()
 end
 

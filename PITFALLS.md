@@ -80,6 +80,25 @@ posted `acquire_input_focus`.
 ### Clicks fall through to the game behind the UI
 **Cause:** the gui_script does not `return` the boolean that `druid:on_input` gives back.
 
+### A nine-sliced button looks squashed at a small size
+**Symptom:** the corners of the sprite bleed into each other and the middle disappears once the
+node is made smaller.
+**Cause:** the slice9 borders are drawn at their own pixel size and never shrink. A node shorter
+than `top + bottom`, or narrower than `left + right`, has no middle left to stretch and the
+corners start overlapping. Our button carries a border of 40 on every side, so it cannot go under
+80 pixels either way — at its 200x88 that leaves eight pixels of stretchable middle in height.
+**Fix:** give a small control a different shape rather than a smaller instance of a big one. The
+debug control is a plain text node, like BACK.
+
+### A button keeps its pressed sprite after one click
+**Symptom:** the button changes colour on the first press and never changes back.
+**Cause:** the sprite was restored in the completion callback of a `gui.animate` on
+`PROP_SCALE`, and Druid's own `on_click` animates that same property immediately afterwards. The
+second animation replaces the first, and a replaced `gui.animate` never calls its callback.
+**Fix:** a pressed sprite belongs on `on_hover`, which Druid raises for the touch that is down on
+the node and always lowers again — on release, on a drag off the node, and on an interrupted
+touch. Never time a state change with an animation on a property something else also drives.
+
 ### Nodes leak after a screen closes
 **Cause:** `final` not forwarded to `self.druid:final()`.
 
